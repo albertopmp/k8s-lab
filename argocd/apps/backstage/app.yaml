@@ -16,10 +16,6 @@ helmValues:
       app:
         title: K8s Lab Backstage
         baseUrl: http://localhost:7007
-        extensions:
-          - page:catalog:
-              config:
-                path: /
       backend:
         baseUrl: http://localhost:7007
         cors:
@@ -39,3 +35,15 @@ helmValues:
         providers:
           guest:
             dangerouslyAllowOutsideDevelopment: true
+      catalog:
+        locations:
+          - type: file
+            target: ./examples/entities.yaml
+          - type: file
+            target: ./examples/template/template.yaml
+            rules:
+              - allow: [Template]
+          - type: file
+            target: ./examples/org.yaml
+            rules:
+              - allow: [User, Group]

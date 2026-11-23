@@ -1,3 +1,21 @@
 *.tgz
-*.lock
-!backstage/yarn.lock
+
+# Backstage local dependencies, build output, and runtime files
+backstage/node_modules/
+backstage/**/node_modules/
+backstage/dist/
+backstage/dist-types/
+backstage/**/dist/
+backstage/**/dist-types/
+backstage/.yarn/cache/
+backstage/.yarn/install-state.gz
+backstage/app-config.local.yaml
+backstage/app-config.*.local.yaml
+backstage/.env*
+!backstage/.env.example
+backstage/*-credentials.yaml
+backstage/**/*.db
+backstage/**/*.sqlite
+backstage/**/*.sqlite3
+backstage/coverage/
+backstage/e2e-test-report/

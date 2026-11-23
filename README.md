@@ -29,11 +29,13 @@ minikube kubectl -p k8s-lab -- get nodes
 
 ## Argo CD
 
-`make up` builds the pinned dependency in [charts/argocd/Chart.yaml](charts/argocd/Chart.yaml), installs it using [charts/argocd/values.yaml](charts/argocd/values.yaml), configures the local `lab` account, and applies one parent [ApplicationSet](argocd/appset.yaml). The ApplicationSet reads `argocd/apps/*/app.yaml` from Git and creates one Application per folder. App definitions are split into [argocd/apps/guestbook/app.yaml](argocd/apps/guestbook/app.yaml) and [argocd/apps/podinfo/app.yaml](argocd/apps/podinfo/app.yaml). The default test password is `lab123`; override it with `make up ARGOCD_LAB_PASSWORD='your-test-password'`. The user has Argo CD admin permissions for easy local experimentation. Edit the wrapper chart's values file to customize the upstream Argo CD chart. See the [upstream values](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml) for available settings. Guestbook is configured with 2 replicas and Podinfo with 3.
+`make up` builds the pinned dependency in [charts/argocd/Chart.yaml](charts/argocd/Chart.yaml), installs it using [charts/argocd/values.yaml](charts/argocd/values.yaml), configures the local `lab` account, and applies one parent [ApplicationSet](argocd/appset.yaml). The ApplicationSet reads `argocd/apps/*/app.yaml` from Git and creates one Application per folder. App definitions and catalog descriptors are kept together under `argocd/apps/`. The default test password is `lab123`; override it with `make up ARGOCD_LAB_PASSWORD='your-test-password'`. The user has Argo CD admin permissions for easy local experimentation. Edit the wrapper chart's values file to customize the upstream Argo CD chart. See the [upstream values](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml) for available settings. Guestbook is configured with 2 replicas and Podinfo with 3.
+
+Backstage is installed from the pinned official [Backstage Helm chart](argocd/apps/backstage/app.yaml), using the pinned demo image. It uses in-memory SQLite and guest sign-in for local evaluation; its database is lost when the pod restarts. Start a local UI tunnel with `make backstage-ui`, then open <http://localhost:7007>. Guest sign-in is intended only for this local lab. The `catalog-info.yaml` files beside each app definition describe the apps as Backstage Components for later manual registration.
 
 The private GitHub repository also requires a read-only fine-grained token with Contents: Read-only. `make up` prompts for your GitHub username and token (the token input is hidden), stores them in a Kubernetes Secret, then applies the ApplicationSet. Run `make repo-auth` later to refresh the credential.
 
-In one terminal, start the UI tunnel:
+In one terminal, start the Argo CD UI tunnel:
 
 ```sh
 make argocd-ui
@@ -70,4 +72,5 @@ Deleting the Minikube profile removes the cluster, including Argo CD and all wor
 
 - This is a single-node local learning environment, not a production configuration. The `lab` account is deliberately granted admin access and uses a simple test password; do not expose this cluster or reuse that password elsewhere.
 - The ApplicationSet reads this private repository at `https://github.com/albertopmp/k8s-lab`, branch `master`. Each `argocd/apps/<name>/app.yaml` folder becomes one generated Argo CD Application.
-- Kubernetes and the upstream Argo CD chart are version-pinned. To change them, edit the Makefile Kubernetes default or the dependency version in `charts/argocd/Chart.yaml`.
+- Backstage guest sign-in is intentionally open for localhost testing; do not expose it outside the local lab. Its in-memory SQLite database is not durable.
+- Kubernetes, the Argo CD chart, Backstage chart, and Backstage image are version-pinned. To change Kubernetes, edit the Makefile default; to customize the charts, edit the relevant app definition or wrapper chart values.

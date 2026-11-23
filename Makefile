@@ -11,6 +11,7 @@ KUBECTL = minikube kubectl -p "$(PROFILE)" --
 up:
 	@command -v helm >/dev/null 2>&1 || { echo "Helm is required. Install it with: brew install helm" >&2; exit 1; }
 	minikube start --profile "$(PROFILE)" --driver=docker --container-runtime=containerd --kubernetes-version="$(K8S_VERSION)" --cpus="$(CPUS)" --memory="$(MEMORY)"
+	helm repo add argo https://argoproj.github.io/argo-helm --force-update
 	helm dependency build ./charts/argocd
 	helm --kube-context "$(PROFILE)" upgrade --install argocd charts/argocd --namespace argocd --create-namespace --wait --timeout 10m
 	ARGOCD_LAB_PASSWORD="$(ARGOCD_LAB_PASSWORD)" sh ./scripts/set-argocd-lab-password.sh "$(PROFILE)"

@@ -1,0 +1,36 @@
+name: backstage
+repoURL: https://backstage.github.io/charts
+targetRevision: 2.10.2
+sourcePath: ""
+chartName: backstage
+namespace: backstage
+replicas: 1
+helmValues:
+  backstage:
+    replicas: 1
+    image:
+      tag: 1.55.2
+    appConfig:
+      app:
+        title: K8s Lab Backstage
+        baseUrl: http://localhost:7007
+      backend:
+        baseUrl: http://localhost:7007
+        cors:
+          origin: http://localhost:7007
+          methods:
+            - GET
+            - HEAD
+            - PATCH
+            - POST
+            - PUT
+            - DELETE
+          credentials: true
+        database:
+          client: better-sqlite3
+          connection: ":memory:"
+      auth:
+        environment: development
+        providers:
+          guest:
+            dangerouslyAllowOutsideDevelopment: true

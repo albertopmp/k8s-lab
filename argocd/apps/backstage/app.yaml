@@ -39,6 +39,8 @@ helmValues:
         locations:
           - type: file
             target: ./examples/entities.yaml
+            rules:
+              - allow: [Component, System, API]
           - type: file
             target: ./examples/template/template.yaml
             rules:

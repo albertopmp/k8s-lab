@@ -16,6 +16,7 @@ helmValues:
       app:
         title: K8s Lab Backstage
         baseUrl: http://localhost:7007
+        packages: all
       backend:
         baseUrl: http://localhost:7007
         cors:

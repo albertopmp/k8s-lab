@@ -5,3 +5,5 @@ sourcePath: helm-guestbook
 chartName: ""
 namespace: guestbook
 replicas: 2
+helmValues:
+  replicaCount: 2

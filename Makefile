@@ -1,5 +1,5 @@
 SHELL := /bin/sh
-.PHONY: up down status argocd-ui argocd-password argocd-lab-password repo-auth
+.PHONY: up down status argocd-ui backstage-ui argocd-password argocd-lab-password repo-auth
 
 PROFILE ?= k8s-lab
 K8S_VERSION ?= v1.34.0
@@ -30,11 +30,14 @@ status:
 argocd-ui:
 	$(KUBECTL) -n argocd port-forward svc/argocd-server 8080:80
 
+backstage-ui:
+	$(KUBECTL) -n backstage port-forward svc/backstage 7007:7007
+
 argocd-password:
-	$(KUBECTL) -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode; printf '\n'
+	$(KUBECTL) -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode; printf '\\n'
 
 argocd-lab-password:
-	@printf '%s\n' "$(ARGOCD_LAB_PASSWORD)"
+	@printf '%s\\n' "$(ARGOCD_LAB_PASSWORD)"
 
 repo-auth:
 	bash ./scripts/register-gitops-repo.sh "$(PROFILE)"

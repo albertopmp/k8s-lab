@@ -16,6 +16,7 @@ up:
 	helm dependency build ./charts/argocd
 	helm --kube-context "$(PROFILE)" upgrade --install argocd charts/argocd --namespace argocd --create-namespace --wait --timeout 10m
 	ARGOCD_LAB_PASSWORD="$(ARGOCD_LAB_PASSWORD)" sh ./scripts/set-argocd-lab-password.sh "$(PROFILE)"
+	ARGOCD_LAB_PASSWORD="$(ARGOCD_LAB_PASSWORD)" sh ./scripts/set-backstage-argocd-secret.sh "$(PROFILE)"
 	bash ./scripts/register-gitops-repo.sh "$(PROFILE)"
 	$(KUBECTL) wait --for=condition=Available --timeout=5m -n argocd deployment/argocd-server
 	$(KUBECTL) apply -f argocd/appset.yaml

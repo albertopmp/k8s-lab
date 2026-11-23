@@ -12,6 +12,11 @@ helmValues:
       repository: k8s-lab/backstage
       tag: 0.1.0
       pullPolicy: Never
+    args:
+      - --config
+      - app-config.yaml
+      - --config
+      - app-config.production.yaml
     appConfig:
       app:
         title: K8s Lab Backstage

@@ -6,7 +6,7 @@ argo-cd:
     cm:
       accounts.lab: login
     rbac:
-      policy: |
+      "policy.csv": |
         g, lab, role:admin
     params:
       # Port-forwarding to localhost is convenient for a disposable local lab.

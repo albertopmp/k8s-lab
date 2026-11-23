@@ -1,0 +1,16 @@
+# Values in this file are passed to the upstream argo-cd chart dependency.
+argo-cd:
+  global:
+    domain: argocd.local
+  configs:
+    cm:
+      accounts.lab: login
+    rbac:
+      policy: |
+        g, lab, role:admin
+    params:
+      # Port-forwarding to localhost is convenient for a disposable local lab.
+      server.insecure: true
+  server:
+    service:
+      type: ClusterIP

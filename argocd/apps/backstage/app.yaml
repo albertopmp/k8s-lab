@@ -4,12 +4,14 @@ targetRevision: 2.10.2
 sourcePath: ""
 chartName: backstage
 namespace: backstage
-replicas: 1
 helmValues:
   backstage:
     replicas: 1
     image:
-      tag: 1.55.2
+      registry: ""
+      repository: k8s-lab/backstage
+      tag: 0.1.0
+      pullPolicy: Never
     appConfig:
       app:
         title: K8s Lab Backstage
@@ -34,7 +36,6 @@ helmValues:
           client: better-sqlite3
           connection: ":memory:"
       auth:
-        environment: development
         providers:
           guest:
             dangerouslyAllowOutsideDevelopment: true

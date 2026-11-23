@@ -4,6 +4,5 @@ targetRevision: 6.17.0
 sourcePath: ""
 chartName: podinfo
 namespace: podinfo
-replicas: 3
 helmValues:
   replicaCount: 3

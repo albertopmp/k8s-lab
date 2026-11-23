@@ -4,5 +4,6 @@ targetRevision: 8088f4c0d970abb09e250248cc97e35623447cb5
 sourcePath: helm-guestbook
 chartName: ""
 namespace: guestbook
+replicas: 2
 helmValues:
   replicaCount: 2

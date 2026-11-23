@@ -1,0 +1,10 @@
+apiVersion: v2
+name: local-argocd
+description: Local Argo CD installation with lab-specific values
+type: application
+version: 0.1.0
+dependencies:
+  - name: argo-cd
+    alias: argo-cd
+    version: 10.18.2
+    repository: https://argoproj.github.io/argo-helm

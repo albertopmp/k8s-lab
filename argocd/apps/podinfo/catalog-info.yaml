@@ -5,6 +5,7 @@ metadata:
   description: Podinfo sample service deployed by Argo CD in the local Kubernetes lab.
   annotations:
     backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/podinfo/catalog-info.yaml
+    argocd/app-name: podinfo
   tags:
     - kubernetes
     - helm

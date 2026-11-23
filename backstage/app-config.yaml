@@ -137,6 +137,15 @@ integrations:
     #   apiBaseUrl: https://ghe.example.net/api/v3
     #   token: ${GHE_TOKEN}
 
+argocd:
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: local
+          url: http://argocd-server.argocd.svc.cluster.local
+          username: ${ARGOCD_USERNAME}
+          password: ${ARGOCD_PASSWORD}
+
 proxy:
   ### Example for how to add a proxy endpoint for the frontend.
   ### A typical reason to do this is to handle HTTPS and CORS for internal services.

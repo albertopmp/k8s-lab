@@ -1,6 +1,6 @@
 app:
-  title: Scaffolded Backstage App
-  baseUrl: http://localhost:3000
+  title: K8s Lab Backstage
+  baseUrl: http://localhost:7007
 
   # Enable all packages by default, this will discover packages from packages/app/package.json
   packages: all
@@ -98,12 +98,6 @@ organization:
   name: My Company
 
 backend:
-  # Used for enabling authentication, secret is shared by all backend plugins
-  # See https://backstage.io/docs/auth/service-to-service-auth for
-  # information on the format
-  # auth:
-  #   keys:
-  #     - secret: ${BACKEND_SECRET}
   baseUrl: http://localhost:7007
   listen:
     port: 7007
@@ -114,11 +108,13 @@ backend:
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: http://localhost:3000
+    origin: http://localhost:7007
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
-  # This is for local development only, it is not recommended to use this in production
-  # The production database configuration is stored in app-config.production.yaml
+  # Local lab only: this allows unauthenticated API calls. Do not use in production.
+  auth:
+    dangerouslyDisableDefaultAuthPolicy: true
+  # Ephemeral local database: data is lost when the pod restarts.
   database:
     client: better-sqlite3
     connection: ':memory:'
@@ -164,7 +160,8 @@ auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
   providers:
     # See https://backstage.io/docs/auth/guest/provider
-    guest: {}
+    guest:
+      dangerouslyAllowOutsideDevelopment: true
   # see https://backstage.io/docs/ai/mcp-actions#client-id-metadata-documents
   # to learn more about client id metadata documents
   clientIdMetadataDocuments:
@@ -188,19 +185,19 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location]
   locations:
-    # Local example data, file locations are relative to the backend process, typically `packages/backend`
+    # Example data included in the custom container image.
     - type: file
-      target: ../../examples/entities.yaml
+      target: ./examples/entities.yaml
 
     # Local example template
     - type: file
-      target: ../../examples/template/template.yaml
+      target: ./examples/template/template.yaml
       rules:
         - allow: [Template]
 
     # Local example organizational data
     - type: file
-      target: ../../examples/org.yaml
+      target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
 

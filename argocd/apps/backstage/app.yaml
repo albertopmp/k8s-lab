@@ -10,48 +10,8 @@ helmValues:
     image:
       registry: ""
       repository: k8s-lab/backstage
-      tag: 0.1.0
+      tag: 0.1.1
       pullPolicy: Never
     args:
       - --config
       - app-config.yaml
-    appConfig:
-      app:
-        title: K8s Lab Backstage
-        baseUrl: http://localhost:7007
-        packages: all
-      backend:
-        baseUrl: http://localhost:7007
-        auth:
-          dangerouslyDisableDefaultAuthPolicy: true
-        cors:
-          origin: http://localhost:7007
-          methods:
-            - GET
-            - HEAD
-            - PATCH
-            - POST
-            - PUT
-            - DELETE
-          credentials: true
-        database:
-          client: better-sqlite3
-          connection: ":memory:"
-      auth:
-        providers:
-          guest:
-            dangerouslyAllowOutsideDevelopment: true
-      catalog:
-        locations:
-          - type: file
-            target: ./examples/entities.yaml
-            rules:
-              - allow: [Component, System, API]
-          - type: file
-            target: ./examples/template/template.yaml
-            rules:
-              - allow: [Template]
-          - type: file
-            target: ./examples/org.yaml
-            rules:
-              - allow: [User, Group]

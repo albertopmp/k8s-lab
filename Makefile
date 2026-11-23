@@ -2,6 +2,7 @@ SHELL := /bin/sh
 .PHONY: up down status argocd-ui backstage-ui backstage-image argocd-password argocd-lab-password repo-auth
 
 PROFILE ?= k8s-lab
+BACKSTAGE_TAG ?= 0.1.1
 K8S_VERSION ?= v1.34.0
 CPUS ?= 4
 MEMORY ?= 4096
@@ -35,8 +36,8 @@ backstage-ui:
 
 backstage-image:
 	cd backstage && yarn install --immutable && yarn tsc && yarn build:backend
-	DOCKER_BUILDKIT=1 docker image build -f backstage/packages/backend/Dockerfile --tag k8s-lab/backstage:0.1.0 backstage
-	minikube image load --profile "$(PROFILE)" k8s-lab/backstage:0.1.0
+	DOCKER_BUILDKIT=1 docker image build -f backstage/packages/backend/Dockerfile --tag k8s-lab/backstage:$(BACKSTAGE_TAG) backstage
+	minikube image load --profile "$(PROFILE)" k8s-lab/backstage:$(BACKSTAGE_TAG)
 
 argocd-password:
 	$(KUBECTL) -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode; printf '\n'

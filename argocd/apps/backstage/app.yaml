@@ -18,6 +18,8 @@ helmValues:
           - page:catalog:
               config:
                 path: /
+          - nav-content:app:
+              disabled: true
       backend:
         baseUrl: http://localhost:7007
         cors:

@@ -5,3 +5,5 @@ sourcePath: ""
 chartName: podinfo
 namespace: podinfo
 replicas: 3
+helmValues:
+  replicaCount: 3

@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage
+  description: Local Backstage developer portal installed from the official Helm chart.
+  annotations:
+    backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/backstage/catalog-info.yaml
+  tags:
+    - kubernetes
+    - helm
+    - argocd
+    - backstage
+spec:
+  type: website
+  lifecycle: experimental
+  owner: guests

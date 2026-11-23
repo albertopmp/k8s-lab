@@ -22,6 +22,8 @@ helmValues:
         packages: all
       backend:
         baseUrl: http://localhost:7007
+        auth:
+          dangerouslyDisableDefaultAuthPolicy: true
         cors:
           origin: http://localhost:7007
           methods:

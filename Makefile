@@ -2,7 +2,7 @@ SHELL := /bin/sh
 .PHONY: up down status argocd-ui backstage-ui backstage-image argocd-password secrets
 
 PROFILE ?= k8s-lab
-BACKSTAGE_TAG ?= 0.1.3
+BACKSTAGE_TAG ?= 0.1.4
 K8S_VERSION ?= v1.34.0
 CPUS ?= 4
 MEMORY ?= 4096
@@ -45,7 +45,7 @@ backstage-ui:
 	$(KUBECTL) -n backstage port-forward svc/backstage 7007:7007
 
 backstage-image:
-	cd backstage && yarn install --immutable && yarn tsc && yarn build:backend
+	cd backstage && corepack yarn install --immutable && corepack yarn tsc && corepack yarn build:backend
 	DOCKER_BUILDKIT=1 docker image build -f backstage/packages/backend/Dockerfile --tag k8s-lab/backstage:$(BACKSTAGE_TAG) backstage
 	minikube image load --profile "$(PROFILE)" k8s-lab/backstage:$(BACKSTAGE_TAG)
 

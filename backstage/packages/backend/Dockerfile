@@ -3,9 +3,9 @@
 #
 # Before building this image, be sure to have run the following commands in the repo root:
 #
-# yarn install --immutable
-# yarn tsc
-# yarn build:backend
+# corepack yarn install --immutable
+# corepack yarn tsc
+# corepack yarn build:backend
 #
 # Host build steps (yarn install, yarn build:backend) must use the same
 # Node version as the FROM image below. Mismatched versions break native modules.
@@ -34,12 +34,12 @@ USER node
 WORKDIR /app
 
 # Copy files needed by Yarn
-COPY --chown=node:node .yarn ./.yarn
 COPY --chown=node:node .yarnrc.yml ./
 COPY --chown=node:node backstage.json ./
 
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV=production
+ENV COREPACK_HOME=/home/node/.cache/yarn/corepack
 
 # Copy repo skeleton first, to avoid unnecessary docker cache invalidation.
 # The skeleton contains the package.json of each package in the monorepo,
@@ -48,7 +48,7 @@ COPY --chown=node:node yarn.lock package.json packages/backend/dist/skeleton.tar
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
-    yarn workspaces focus --all --production && rm -rf "$(yarn cache clean)"
+    corepack yarn workspaces focus --all --production
 
 # This will include the examples, if you don't need these simply remove this line
 COPY --chown=node:node examples ./examples

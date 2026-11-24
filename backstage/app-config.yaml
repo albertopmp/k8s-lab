@@ -94,6 +94,20 @@ app:
               width: 4
               height: 4
 
+    - page:catalog/entity:
+        config:
+          groups:
+            - overview:
+                title: Overview
+            - deployment:
+                title: ArgoCD
+          defaultContentOrder: title
+
+    # Put the latest workflow run below the overview's information cards.
+    - entity-card:github-actions/latest-workflow-run:
+        config:
+          type: content
+
 organization:
   name: My Company
 

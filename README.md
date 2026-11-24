@@ -8,13 +8,17 @@ A disposable, code-defined Minikube cluster for practicing Kubernetes, Helm, and
 - Minikube
 - kubectl
 - Helm (for chart work from your terminal)
+- Node.js and Yarn (to build Backstage)
 - GNU Make
 
-Install the command line tools with Homebrew if needed: `brew install minikube kubectl helm`. Install Docker Desktop separately.
+Install the command line tools with Homebrew if needed: `brew install minikube kubectl helm node`. Enable Corepack to get Yarn. Install Docker Desktop separately.
 
 ## Create the environment
 
 ```sh
+cp secrets.local.example.yaml secrets.local.yaml
+# Edit secrets.local.yaml, replace all REPLACE_ME values, then keep this file private.
+chmod 600 secrets.local.yaml
 make up
 ```
 
@@ -29,11 +33,11 @@ minikube kubectl -p k8s-lab -- get nodes
 
 ## Argo CD
 
-`make up` builds the pinned dependency in [charts/argocd/Chart.yaml](charts/argocd/Chart.yaml), installs it using [charts/argocd/values.yaml](charts/argocd/values.yaml), configures the local `lab` account, and applies one parent [ApplicationSet](argocd/appset.yaml). The ApplicationSet reads `argocd/apps/*/app.yaml` from Git and creates one Application per folder. App definitions and catalog descriptors are kept together under `argocd/apps/`. The default test password is `lab123`; override it with `make up ARGOCD_LAB_PASSWORD='your-test-password'`. The user has Argo CD admin permissions for easy local experimentation. Edit the wrapper chart's values file to customize the upstream Argo CD chart. See the [upstream values](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml) for available settings. Guestbook is configured with 2 replicas and Podinfo with 3.
+`make up` reads credentials from the ignored `secrets.local.yaml`, installs Argo CD, applies the Kubernetes Secrets from that file, configures its local `lab` account, builds the Backstage image, applies the parent [ApplicationSet](argocd/appset.yaml), and waits for Backstage. The ApplicationSet reads `argocd/apps/*/app.yaml` from Git and creates one Application per folder. App definitions and catalog descriptors are kept together under `argocd/apps/`. The local `lab` account uses the password in `secrets.local.yaml`; it has Argo CD admin permissions for easy local experimentation. Edit the wrapper chart's values file to customize the upstream Argo CD chart. See the [upstream values](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml) for available settings. Guestbook is configured with 2 replicas and Podinfo with 3.
 
-Backstage is installed from the pinned official [Backstage Helm chart](argocd/apps/backstage/app.yaml). Its project is scaffolded from the [Backstage quickstart](https://backstage.io/docs/getting-started/) in `backstage/`, with one `app-config.yaml` for this local lab. Build the custom image into Minikube with `make backstage-image`; this builds the tag set by `BACKSTAGE_TAG` (currently `0.1.3`). Argo CD deploys that local image through the Helm chart. The app uses in-memory SQLite and guest access for local evaluation; its database is lost when the pod restarts. Start a local UI tunnel with `make backstage-ui`, then open <http://localhost:7007>. Guest access is intended only for this local lab. `make up` automatically creates the `backstage-argocd` Secret with the same test password configured for the Argo CD `lab` account. To recreate that Secret alone, run `make backstage-argocd-secret`; if you changed the test password, pass the same value with `ARGOCD_LAB_PASSWORD`. The `catalog-info.yaml` files beside each app definition describe the apps as Backstage Components for later registration and include Argo CD app annotations.
+Backstage is installed from the pinned official [Backstage Helm chart](argocd/apps/backstage/app.yaml). Its project is scaffolded from the [Backstage quickstart](https://backstage.io/docs/getting-started/) in `backstage/`, with one `app-config.yaml` for this local lab. `make up` builds the custom image into Minikube using the tag set by `BACKSTAGE_TAG` (currently `0.1.3`). Argo CD deploys that local image through the Helm chart. The app uses in-memory SQLite and guest access for local evaluation; its database is lost when the pod restarts. Start a local UI tunnel with `make backstage-ui`, then open <http://localhost:7007>. Guest access is intended only for this local lab. `secrets.local.yaml` contains the Argo CD repository credential and Backstage environment Secrets; `make up` applies them directly. The file survives deleting Minikube, and its Secrets are recreated on the next `make up`. The `catalog-info.yaml` files beside each app definition describe the apps as Backstage Components for later registration and include Argo CD app annotations.
 
-The Backstage frontend also includes the [GitHub Actions plugin](https://github.com/backstage/community-plugins/blob/main/workspaces/github/plugins/github-actions/README.md), and its GitHub auth backend provider is installed. Components use `github.com/project-slug` to identify their repository; the lab app descriptors point to `albertopmp/k8s-lab`. To view runs from this private repo, create a GitHub OAuth App with callback `http://localhost:7007/api/auth/github/handler/frame`, then run `make backstage-github-auth` to store its client ID and secret in the local `backstage-argocd` Secret. Uncomment `auth.providers.github.development` in `backstage/app-config.yaml`, rebuild the image, and deploy it. The added `.github/workflows/lab-smoke.yaml` runs on pushes, pull requests, or manual dispatch, giving the plugin a simple workflow to display after it runs.
+The Backstage frontend also includes the [GitHub Actions plugin](https://github.com/backstage/community-plugins/blob/main/workspaces/github/plugins/github-actions/README.md), and its GitHub auth backend provider is installed. Components use `github.com/project-slug` to identify their repository; the lab app descriptors point to `albertopmp/k8s-lab`. Put your GitHub OAuth App client ID and secret in `secrets.local.yaml`; the callback URL is `http://localhost:7007/api/auth/github/handler/frame`. The same file holds a fine-grained GitHub token with Contents: Read and Actions: Read access, plus a local Argo CD lab password. `make up` applies the file directly, and `make secrets` reapplies it after you edit a credential. The GitHub Actions plugin can show runs from the repository. The added `.github/workflows/lab-smoke.yaml` runs on pushes, pull requests, or manual dispatch, giving the plugin a simple workflow to display after it runs.
 
 In one terminal, start the UI tunnel:
 
@@ -71,6 +75,7 @@ Deleting the Minikube profile removes the cluster, including Argo CD and all wor
 ## Notes
 
 - This is a single-node local learning environment, not a production configuration. The `lab` account is deliberately granted admin access and uses a simple test password; do not expose this cluster or reuse that password elsewhere.
-- The ApplicationSet reads this private repository at `https://github.com/albertopmp/k8s-lab`, branch `master`. Create a GitHub fine-grained token with Contents: Read-only for this repo. `make up` prompts for it without echoing the token, then stores it in an Argo CD repository Secret; to refresh credentials later, run `make repo-auth`. Each `argocd/apps/<name>/app.yaml` folder becomes one generated Argo CD Application.
+- The ApplicationSet reads this private repository at `https://github.com/albertopmp/k8s-lab`, branch `master`. `secrets.local.yaml` contains the fine-grained GitHub token with Contents: Read access; `make up` applies the Argo CD repository Secret from it. After changing credentials in the local file, run `make secrets` to apply them. Each `argocd/apps/<name>/app.yaml` folder becomes one generated Argo CD Application.
+- `secrets.local.yaml` is ignored by Git and contains plaintext local test values. It is not encrypted or backed up by Kubernetes; protect the file and store your own secure backup if you need it on another machine.
 - The Backstage Helm chart deployment is a disposable demo. The Getting Started guide's in-memory SQLite database is not durable; use a production database and configured authentication before exposing it beyond localhost.
 - Kubernetes and the upstream Argo CD chart are version-pinned. To change them, edit the Makefile Kubernetes default or the dependency version in `charts/argocd/Chart.yaml`.

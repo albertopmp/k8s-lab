@@ -10,7 +10,7 @@ helmValues:
     image:
       registry: ""
       repository: k8s-lab/backstage
-      tag: 0.1.4
+      tag: 0.1.5
       pullPolicy: Never
     args:
       - --config

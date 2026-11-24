@@ -96,17 +96,42 @@ app:
 
     - page:catalog/entity:
         config:
+          showNavItemIcons: true
+          defaultContentOrder: natural
           groups:
             - overview:
                 title: Overview
-            - deployment:
-                title: ArgoCD
-          defaultContentOrder: title
+            - delivery:
+                title: Delivery
+            - documentation:
+                title: Documentation
 
-    # Put the latest workflow run below the overview's information cards.
-    - entity-card:github-actions/latest-workflow-run:
+    # Overview
+    - entity-content:catalog/overview:
         config:
-          type: content
+          group: overview
+
+    # Delivery
+    - entity-content:github-actions/entity:
+        config:
+          group: delivery
+
+    # Documentation
+    - entity-content:techdocs:
+        config:
+          group: documentation
+
+    - entity-content:api-docs/definition:
+        config:
+          group: documentation
+
+    - entity-content:api-docs/apis:
+        config:
+          group: documentation
+
+    # API relationship cards
+    - entity-card:api-docs/provided-apis
+    - entity-card:api-docs/consumed-apis
 
 organization:
   name: My Company

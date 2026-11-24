@@ -1,4 +1,13 @@
 *.tgz
+/secrets.local.yaml
+/.env
+/.env.*
+!/.env.example
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.log
 
 # Backstage local dependencies, build output, and runtime files
 backstage/node_modules/

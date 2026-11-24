@@ -1,8 +1,8 @@
 SHELL := /bin/sh
-.PHONY: up down status argocd-ui backstage-ui backstage-image backstage-argocd-secret argocd-password argocd-lab-password repo-auth
+.PHONY: up down status argocd-ui backstage-ui backstage-image backstage-argocd-secret backstage-github-auth argocd-password argocd-lab-password repo-auth
 
 PROFILE ?= k8s-lab
-BACKSTAGE_TAG ?= 0.1.2
+BACKSTAGE_TAG ?= 0.1.3
 K8S_VERSION ?= v1.34.0
 CPUS ?= 4
 MEMORY ?= 4096
@@ -42,6 +42,9 @@ backstage-image:
 
 backstage-argocd-secret:
 	ARGOCD_LAB_PASSWORD="$(ARGOCD_LAB_PASSWORD)" sh ./scripts/set-backstage-argocd-secret.sh "$(PROFILE)"
+
+backstage-github-auth:
+	bash ./scripts/set-backstage-github-auth.sh "$(PROFILE)"
 
 argocd-password:
 	$(KUBECTL) -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode; printf '\n'

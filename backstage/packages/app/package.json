@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@backstage-community/plugin-argocd": "3.2.0",
+    "@backstage-community/plugin-github-actions": "1.6.0",
     "@backstage/cli": "^0.36.8",
     "@backstage/core-components": "^0.18.16",
     "@backstage/core-plugin-api": "^1.13.0",

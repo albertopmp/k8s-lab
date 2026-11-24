@@ -6,6 +6,7 @@ metadata:
   annotations:
     backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/podinfo/catalog-info.yaml
     argocd/app-name: podinfo
+    github.com/project-slug: albertopmp/k8s-lab
   tags:
     - kubernetes
     - helm

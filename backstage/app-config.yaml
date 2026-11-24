@@ -171,6 +171,14 @@ auth:
     # See https://backstage.io/docs/auth/guest/provider
     guest:
       dangerouslyAllowOutsideDevelopment: true
+    # GitHub Actions uses this provider to get a user-scoped GitHub token.
+    # Create a GitHub OAuth App with callback
+    # http://localhost:7007/api/auth/github/handler/frame, then set these values
+    # in the Backstage runtime environment before uncommenting the provider.
+    # github:
+    #   development:
+    #     clientId: ${AUTH_GITHUB_CLIENT_ID}
+    #     clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
   # see https://backstage.io/docs/ai/mcp-actions#client-id-metadata-documents
   # to learn more about client id metadata documents
   clientIdMetadataDocuments:

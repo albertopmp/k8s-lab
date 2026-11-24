@@ -1,0 +1,17 @@
+name: Lab smoke check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check lab manifests are present
+        run: |
+          test -s argocd/appset.yaml
+          test -s charts/argocd/Chart.yaml
+          test -s backstage/app-config.yaml

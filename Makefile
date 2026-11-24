@@ -2,7 +2,7 @@ SHELL := /bin/sh
 .PHONY: up down status argocd-ui backstage-ui backstage-image argocd-password secrets
 
 PROFILE ?= k8s-lab
-BACKSTAGE_TAG ?= 0.1.4
+BACKSTAGE_TAG ?= 0.1.3
 K8S_VERSION ?= v1.34.0
 CPUS ?= 4
 MEMORY ?= 4096

@@ -2,7 +2,7 @@
 # Sets up lab credentials derived from the Secrets in secrets.local.yaml:
 # - Argo CD user `lab` and the Kargo `admin` account share ARGOCD_PASSWORD.
 # - Kargo reads the private k8s-lab repo with the same GITHUB_TOKEN as Backstage.
-# - Backstage reads Kargo with the read-only API token of the k8s-lab Project.
+# - Backstage reads Kargo and promotes Freight with the kargo-promoter API token of the k8s-lab Project.
 set -eu
 
 context=${1:-k8s-lab}
@@ -81,11 +81,11 @@ YAML
 unset token
 echo "Kargo Git credentials for k8s-lab configured."
 
-# Backstage: read-only Kargo API token (kargo-viewer ServiceAccount token
+# Backstage: Kargo API token (kargo-promoter ServiceAccount token
 # declared in kargo/projects/k8s-lab). The Secret always exists so the
 # Backstage pod can start; until Kargo has created the token it is empty and
 # the mitek-kargo plugin answers 503. Rerun `make secrets` once Kargo is up.
-kargo_token=$(kubectl_mk -n k8s-lab get secret backstage-api-token -o jsonpath='{.data.token}' 2>/dev/null | base64 --decode || true)
+kargo_token=$(kubectl_mk -n k8s-lab get secret backstage-kargo-token -o jsonpath='{.data.token}' 2>/dev/null | base64 --decode || true)
 kubectl_mk apply -f - >/dev/null <<YAML
 apiVersion: v1
 kind: Secret

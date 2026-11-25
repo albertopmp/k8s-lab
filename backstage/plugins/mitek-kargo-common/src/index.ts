@@ -38,6 +38,8 @@ export type MitekFreight = {
   commits: MitekFreightCommit[];
   /** Stages where this Freight has been verified (e.g. dev, stg, prd). */
   verifiedIn: string[];
+  /** Stages currently running this Freight. */
+  currentlyIn: string[];
 };
 
 /**
@@ -46,3 +48,46 @@ export type MitekFreight = {
  * @public
  */
 export type MitekFreightList = { items: MitekFreight[] };
+
+/**
+ * A Stage this Freight can be promoted to.
+ *
+ * @public
+ */
+export type MitekStage = { name: string };
+
+/**
+ * Response body of the promotable-Stages endpoint.
+ *
+ * @public
+ */
+export type MitekStageList = { items: MitekStage[] };
+
+/**
+ * Lifecycle phase of a Kargo Promotion.
+ *
+ * @public
+ */
+export type MitekPromotionPhase =
+  | 'Pending'
+  | 'Running'
+  | 'Succeeded'
+  | 'Failed'
+  | 'Errored'
+  | 'Aborted';
+
+
+/**
+ * A Kargo Promotion: only the fields Backstage uses.
+ *
+ * @public
+ */
+export type MitekPromotion = {
+  name: string;
+  stage: string;
+  freight: string;
+  /** Empty until the Kargo controller picks the Promotion up. */
+  phase?: MitekPromotionPhase;
+  message?: string;
+  createdAt?: string;
+};

@@ -212,14 +212,15 @@ argocd:
           username: ${ARGOCD_USERNAME}
           password: ${ARGOCD_PASSWORD}
 
-# Mitek custom: Kargo API for the mitek-kargo backend plugin
-# (plugins/mitek-kargo-backend). The token is a read-only Kargo
-# API token (k8s-lab Project, kargo-viewer role) that `make secrets` copies
-# into the backstage-kargo Secret.
+# Mitek custom: Kargo API for plugins/mitek-kargo-backend (routes and the
+# mitek:kargo:promote scaffolder action). The token is the k8s-lab
+# Project's kargo-promoter API token, copied by `make secrets` into the
+# backstage-kargo Secret. uiUrl builds links to the Kargo UI (`make ui`).
 mitek:
   kargo:
     baseUrl: http://kargo-api.apps-prd.svc.cluster.local
     token: ${KARGO_API_TOKEN}
+    uiUrl: http://localhost:8081
 
 proxy:
   ### Example for how to add a proxy endpoint for the frontend.

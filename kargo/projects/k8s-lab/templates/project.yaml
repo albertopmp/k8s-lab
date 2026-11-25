@@ -14,7 +14,8 @@ kind: Project
 metadata:
   name: {{ .Values.project }}
 ---
-# Auto-promotion is enabled per Stage at the Project level.
+# Auto-promotion is set per Stage at the Project level: on for the Stages in
+# .Values.autoPromotionStages, off for the rest.
 apiVersion: kargo.akuity.io/v1alpha1
 kind: ProjectConfig
 metadata:
@@ -27,5 +28,5 @@ spec:
   {{- range .Values.stages }}
     - stageSelector:
         name: {{ . }}
-      autoPromotionEnabled: true
+      autoPromotionEnabled: {{ has . $.Values.autoPromotionStages }}
   {{- end }}

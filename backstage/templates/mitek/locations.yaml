@@ -8,4 +8,4 @@ metadata:
   description: Mitek software templates
 spec:
   targets:
-    - ./k8s-deployment/template.yaml
+    - ./kargo-promote/template.yaml

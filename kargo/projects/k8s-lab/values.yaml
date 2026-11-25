@@ -20,3 +20,8 @@ stages:
   - dev
   - stg
   - prd
+# Stages that promote new Freight automatically. The others only change
+# through a manual promotion (Backstage's Kargo promote template or the Kargo
+# UI), so a manual promotion of older Freight isn't replaced again.
+autoPromotionStages:
+  - dev

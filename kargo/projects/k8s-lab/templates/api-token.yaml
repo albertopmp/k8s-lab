@@ -1,12 +1,13 @@
-# Read-only Kargo API token for Backstage: a ServiceAccount token for the
-# Project's built-in `kargo-viewer` role. `make secrets` copies it into the
+# Kargo API token for Backstage: a ServiceAccount token for the Project's
+# built-in `kargo-promoter` role (read Project resources and promote Freight;
+# can't edit or delete them). `make secrets` copies it into the
 # `backstage-kargo` Secret that the Backstage pod reads as KARGO_API_TOKEN.
 apiVersion: v1
 kind: Secret
 metadata:
-  name: backstage-api-token
+  name: backstage-kargo-token
   namespace: {{ .Values.project }}
   annotations:
-    kubernetes.io/service-account.name: kargo-viewer
+    kubernetes.io/service-account.name: kargo-promoter
     argocd.argoproj.io/sync-wave: "1"
 type: kubernetes.io/service-account-token

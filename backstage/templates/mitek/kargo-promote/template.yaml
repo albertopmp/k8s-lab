@@ -1,0 +1,72 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# Mitek custom template: promotes a component's Kargo Freight to a Stage.
+kind: Template
+metadata:
+  name: mitek-kargo-promote
+  title: Kargo promotion
+  description: Promote one of a component's Kargo Freight to a Stage and wait until the Promotion finishes.
+  tags:
+    - mitek
+    - kargo
+spec:
+  owner: user:guest
+  type: kargo
+
+  parameters:
+    - title: Promotion
+      required:
+        - component
+        - freight
+        - stage
+      properties:
+        component:
+          title: Component
+          type: string
+          description: Catalog Component managed by Kargo.
+          ui:field: EntityPicker
+          ui:autofocus: true
+          ui:options:
+            catalogFilter:
+              kind: Component
+              metadata.annotations.kargo/project:
+                exists: true
+        freight:
+          title: Freight
+          type: string
+          description: One of the component's 10 newest Freight.
+          ui:field: MitekFreightPicker
+          ui:options:
+            entityField: component
+        stage:
+          title: Stage
+          type: string
+          description: Only Stages Kargo accepts this Freight in are listed.
+          ui:field: MitekStagePicker
+          ui:options:
+            entityField: component
+            freightField: freight
+
+  steps:
+    - id: promote
+      name: Promote with Kargo
+      action: mitek:kargo:promote
+      input:
+        entityRef: ${{ parameters.component }}
+        freight: ${{ parameters.freight }}
+        stage: ${{ parameters.stage }}
+        timeoutMinutes: 10
+
+  output:
+    links:
+      - title: Open the Promotion in Kargo
+        icon: dashboard
+        url: ${{ steps.promote.output.promotionUrl }}
+        if: ${{ steps.promote.output.promotionUrl }}
+      - title: Open the component
+        icon: catalog
+        entityRef: ${{ parameters.component }}
+    text:
+      - title: Result
+        content: |
+          Freight **${{ steps.promote.output.freightAlias or parameters.freight }}** is in **${{ parameters.stage }}**
+          (Kargo project `${{ steps.promote.output.project }}`, Promotion phase: **${{ steps.promote.output.phase }}**).

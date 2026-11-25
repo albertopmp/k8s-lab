@@ -36,15 +36,3 @@ export type MitekFreightList = { items: MitekFreight[] };
  * @public
  */
 export type MitekStageList = { items: string[] };
-
-/**
- * A Kargo Promotion: only the fields Backstage uses.
- *
- * @public
- */
-export type MitekPromotion = {
-  name: string;
-  /** Pending, Running, Succeeded, Failed, Errored or Aborted; empty at first. */
-  phase?: string;
-  message?: string;
-};

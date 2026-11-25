@@ -9,7 +9,7 @@ Mitek Kargo integration for the Backstage backend. One package, two features:
 
 Routes:
 
-- `GET /projects/:project/warehouses/:warehouse/freight?limit=` newest Freight of a Warehouse (default 10)
+- `GET /projects/:project/warehouses/:warehouse/freight` the 10 newest Freight of a Warehouse
 - `GET /projects/:project/freight/:freight/stages` Stages the Freight can be promoted to (Kargo decides per Stage)
 
 Action (`mitek:kargo:promote`): inputs `entityRef`, `freight`, `stage`;

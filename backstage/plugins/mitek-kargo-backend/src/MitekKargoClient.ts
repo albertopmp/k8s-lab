@@ -1,13 +1,18 @@
 import type { Config } from '@backstage/config';
-import type {
-  MitekFreight,
-  MitekPromotion,
-} from '@internal/backstage-plugin-mitek-kargo-common';
+import type { MitekFreight } from '@internal/backstage-plugin-mitek-kargo-common';
 import { MitekKargoError, toKargoError } from './MitekKargoError';
+
+/** A Kargo Promotion: only the fields we use. */
+export type MitekPromotion = {
+  name: string;
+  /** Pending, Running, Succeeded, Failed, Errored or Aborted; empty at first. */
+  phase?: string;
+  message?: string;
+};
 
 /** Raw Kargo resources: only the fields we read. */
 type KargoFreight = {
-  metadata: { name: string; creationTimestamp?: string; labels?: Record<string, string> };
+  metadata: { name: string; creationTimestamp?: string };
   alias?: string;
   commits?: { id: string; message?: string }[];
 };
@@ -70,7 +75,7 @@ export class MitekKargoClient {
       )
       .map(f => ({
         name: f.metadata.name,
-        alias: f.alias ?? f.metadata.labels?.['kargo.akuity.io/alias'],
+        alias: f.alias,
         commits: (f.commits ?? []).map(({ id, message }) => ({ id, message })),
       }));
     return filter.limit ? freight.slice(0, filter.limit) : freight;
@@ -100,11 +105,11 @@ export class MitekKargoClient {
   }
 
   async getPromotion(project: string, name: string): Promise<MitekPromotion> {
-    const body = await this.request<KargoPromotion | { promotion: KargoPromotion }>(
+    const body = await this.request<KargoPromotion>(
       `/projects/${encodeURIComponent(project)}/promotions/${encodeURIComponent(name)}`,
       `read Promotion ${name}`,
     );
-    return toPromotion('promotion' in body ? body.promotion : body);
+    return toPromotion(body);
   }
 
   /**

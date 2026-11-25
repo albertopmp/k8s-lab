@@ -5,11 +5,8 @@ import { MitekKargoError } from './MitekKargoError';
 const freightList = (...items: unknown[]) => ({ groups: { '': { items } } });
 
 const older = {
-  metadata: {
-    name: 'aaa111',
-    creationTimestamp: '2026-11-25T10:00:00Z',
-    labels: { 'kargo.akuity.io/alias': 'old-otter' },
-  },
+  metadata: { name: 'aaa111', creationTimestamp: '2026-11-25T10:00:00Z' },
+  alias: 'old-otter',
   commits: [{ id: 'c0ffee1', message: 'first', branch: 'master' }],
 };
 const newer = {

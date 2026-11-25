@@ -11,7 +11,7 @@ import type { MitekKargoClient } from './MitekKargoClient';
 /**
  * Mitek: routes of the mitek-kargo plugin, served at /api/mitek-kargo.
  *
- *   GET /projects/:project/warehouses/:warehouse/freight  newest Freight of a Warehouse (?limit=, default 10)
+ *   GET /projects/:project/warehouses/:warehouse/freight  10 newest Freight of a Warehouse
  *   GET /projects/:project/freight/:freight/stages        Stages the Freight can be promoted to
  *
  * Errors are `{ error }`: Kargo's 4xx status, 502 if Kargo fails, 503 if
@@ -29,9 +29,8 @@ export function createRouter(client: MitekKargoClient | undefined, logger: Logge
 
   router.get('/projects/:project/warehouses/:warehouse/freight', async (req, res) => {
     const { project, warehouse } = req.params;
-    const limit = Number(req.query.limit) || 10;
     const body: MitekFreightList = {
-      items: await client!.listFreight(project, { warehouse, limit }),
+      items: await client!.listFreight(project, { warehouse, limit: 10 }),
     };
     res.json(body);
   });

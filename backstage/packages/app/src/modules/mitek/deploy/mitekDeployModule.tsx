@@ -1,12 +1,13 @@
 import { createFrontendModule } from '@backstage/frontend-plugin-api';
 import { EntityCardBlueprint } from '@backstage/plugin-catalog-react/alpha';
 
-/** Mitek: Deploy card on every Component's Overview, right column. */
+/**
+ * Mitek: Deploy card for the entity Overview tab.
+ * Placement (`type`) and which entities show it (`filter`) are set in app-config.yaml.
+ */
 const mitekDeployCard = EntityCardBlueprint.make({
   name: 'mitek-deploy',
   params: {
-    type: 'info',
-    filter: { kind: 'component' },
     loader: () =>
       import('./MitekDeployCard').then(m => <m.MitekDeployCard />),
   },

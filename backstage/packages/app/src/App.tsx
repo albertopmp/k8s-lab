@@ -6,14 +6,14 @@ import githubActionsPlugin from '@backstage-community/plugin-github-actions/alph
 import catalogPlugin from '@backstage/plugin-catalog/alpha';
 import { navModule } from './modules/nav';
 import { homeModule } from './modules/home';
-import { mitekDeployModule } from './modules/mitekDeploy';
+import { mitekModules } from './modules/mitek';
 
 export default createApp({
   features: [
     catalogPlugin,
     navModule,
     homeModule,
-    mitekDeployModule,
+    ...mitekModules,
     argocdPlugin,
     argocdTranslationsModule,
     githubActionsPlugin,

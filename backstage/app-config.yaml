@@ -139,13 +139,25 @@ app:
     # Hide the APIs tab on Component pages
     - entity-content:api-docs/apis: false
 
-    # Overview cards: the catalog graph is listed first so it renders first
+    # Overview cards
+    # Every `entity-card:*` extension attaches to the Overview tab
+    # (entity-content:catalog/overview) by default; that is built into
+    # EntityCardBlueprint, so no tab needs to be named here. Each card takes:
+    #   type:   info    -> right column
+    #           content -> main column (also the default when unset)
+    #   filter: which entities show the card, as an entity predicate
+    # Within a column, cards render in the order they are listed below.
     - entity-card:catalog-graph/relations:
         config:
           type: content
 
-    # Mitek custom: Deploy button (packages/app/src/modules/mitekDeploy), right column above GH last run
-    - entity-card:app/mitek-deploy
+    # Mitek custom: Deploy button (packages/app/src/modules/mitek/deploy).
+    # Right column, above the GitHub Actions card, on Components only.
+    - entity-card:app/mitek-deploy:
+        config:
+          type: info
+          filter:
+            kind: component
 
     - entity-card:github-actions/recent-workflow-runs: false
     - entity-card:github-actions/latest-workflow-run:

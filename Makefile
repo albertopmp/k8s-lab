@@ -1,5 +1,5 @@
 SHELL := /bin/sh
-.PHONY: up down status argocd-ui backstage-ui backstage-image argocd-password secrets
+.PHONY: up down status ui backstage-image argocd-password secrets
 
 PROFILE ?= k8s-lab
 BACKSTAGE_TAG ?= 0.1.6
@@ -7,6 +7,11 @@ K8S_VERSION ?= v1.34.0
 CPUS ?= 4
 MEMORY ?= 4096
 KUBECTL = minikube kubectl -p "$(PROFILE)" --
+# Long-running commands (port-forward) use kubectl directly when installed:
+# `minikube kubectl` holds a minikube lock for as long as it runs, which makes
+# every other `minikube kubectl` call print "Another minikube instance is
+# downloading dependencies...".
+KUBECTL_DIRECT = $(if $(shell command -v kubectl 2>/dev/null),kubectl --context "$(PROFILE)",$(KUBECTL))
 
 up:
 	@command -v minikube >/dev/null 2>&1 || { echo "Minikube is required." >&2; exit 1; }
@@ -39,10 +44,12 @@ status:
 	$(KUBECTL) get pods -A
 
 ui:
-	open -a "Google Chrome" "http://localhost:8080" "http://localhost:7007"
-	$(KUBECTL) -n argocd port-forward svc/argocd-server 8080:80 & \
-	$(KUBECTL) -n backstage port-forward svc/backstage 7007:7007 & \
-	echo "Press CTRL-C to stop port forwarding and exit the script"
+	@$(KUBECTL_DIRECT) -n argocd port-forward svc/argocd-server 8080:80 >/dev/null & argocd=$$!; \
+	$(KUBECTL_DIRECT) -n backstage port-forward svc/backstage 7007:7007 >/dev/null & backstage=$$!; \
+	trap 'kill $$argocd $$backstage 2>/dev/null' INT TERM EXIT; \
+	sleep 2; open -a "Google Chrome" "http://localhost:8080" "http://localhost:7007"; \
+	echo "Argo CD: http://localhost:8080  Backstage: http://localhost:7007"; \
+	echo "Press CTRL-C to stop port forwarding."; \
 	wait
 
 backstage-image:

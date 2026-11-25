@@ -5,7 +5,7 @@ sourcePath: ""
 chartName: kargo
 helmValues:
   api:
-    # Reached with `make ui` at http://localhost:8081.
+    # Reached with `make ui` at http://localhost:8081
     host: localhost:8081
     # Admin account: password hash (same password as Argo CD's lab user) and
     # token signing key live in this Secret, created by `make secrets`.

@@ -23,7 +23,7 @@ export function MitekDeployCard() {
           iconStart={<RiRocketLine />}
           style={{ width: '100%', justifyContent: 'center' }}
         >
-          Deploy
+          Deploy via Kargo
         </ButtonLink>
       </CardBody>
     </Card>

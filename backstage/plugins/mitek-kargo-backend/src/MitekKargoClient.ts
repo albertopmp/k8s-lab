@@ -9,25 +9,17 @@ import { MitekKargoError, toKargoError } from './MitekKargoError';
 type KargoFreight = {
   metadata: { name: string; creationTimestamp?: string; labels?: Record<string, string> };
   alias?: string;
-  origin?: { kind: string; name: string };
-  commits?: { id: string; message?: string; branch?: string; repoURL?: string }[];
-  status?: { verifiedIn?: object; currentlyIn?: object };
+  commits?: { id: string; message?: string }[];
 };
 
 type KargoStage = {
   metadata: { name: string };
-  spec: {
-    requestedFreight?: {
-      origin: { kind: string; name: string };
-      sources?: { direct?: boolean; stages?: string[] };
-    }[];
-  };
+  spec: { requestedFreight?: { sources?: { stages?: string[] } }[] };
 };
 
 type KargoPromotion = {
-  metadata: { name: string; creationTimestamp?: string };
-  spec: { stage: string; freight: string };
-  status?: { phase?: MitekPromotion['phase']; message?: string };
+  metadata: { name: string };
+  status?: { phase?: string; message?: string };
 };
 
 const FINISHED = ['Succeeded', 'Failed', 'Errored', 'Aborted'];
@@ -62,52 +54,42 @@ export class MitekKargoClient {
     project: string,
     filter: { warehouse?: string; stage?: string; limit?: number } = {},
   ): Promise<MitekFreight[]> {
-    const query = filter.stage ? `?stage=${encodeURIComponent(filter.stage)}` : '';
+    const params = new URLSearchParams();
+    if (filter.warehouse) params.set('origins', filter.warehouse);
+    if (filter.stage) params.set('stage', filter.stage);
+    const query = params.toString();
     const body = await this.request<{ groups?: Record<string, { items?: KargoFreight[] }> }>(
-      `/projects/${encodeURIComponent(project)}/freight${query}`,
+      `/projects/${encodeURIComponent(project)}/freight${query ? `?${query}` : ''}`,
       `list Freight in ${project}`,
     );
 
-    let freight = Object.values(body.groups ?? {})
+    const freight = Object.values(body.groups ?? {})
       .flatMap(group => group.items ?? [])
-      .map(toFreight)
-      .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
-    if (filter.warehouse) {
-      freight = freight.filter(f => f.warehouse === filter.warehouse);
-    }
+      .sort((a, b) =>
+        (b.metadata.creationTimestamp ?? '').localeCompare(a.metadata.creationTimestamp ?? ''),
+      )
+      .map(f => ({
+        name: f.metadata.name,
+        alias: f.alias ?? f.metadata.labels?.['kargo.akuity.io/alias'],
+        commits: (f.commits ?? []).map(({ id, message }) => ({ id, message })),
+      }));
     return filter.limit ? freight.slice(0, filter.limit) : freight;
   }
 
   /**
    * Stages a Freight can be promoted to, in promotion order (dev, stg, prd).
-   * Kargo decides: for each Stage fed by the Freight's Warehouse, we ask which
-   * Freight that Stage accepts.
+   * Kargo decides: for each Stage, we ask which Freight it accepts.
    */
-  async getPromotableStages(project: string, freightName: string): Promise<string[]> {
-    const [allFreight, stages] = await Promise.all([
-      this.listFreight(project),
-      this.listStages(project),
-    ]);
-    const freight = allFreight.find(f => f.name === freightName);
-    if (!freight) {
-      throw new MitekKargoError(`Freight ${freightName} does not exist in Kargo project ${project}`, 404);
-    }
-
+  async getPromotableStages(project: string, freight: string): Promise<string[]> {
     const promotable: string[] = [];
-    for (const stage of inPromotionOrder(stages)) {
-      const fedByWarehouse = (stage.spec.requestedFreight ?? []).some(
-        r => r.origin.kind === 'Warehouse' && r.origin.name === freight.warehouse,
-      );
-      if (!fedByWarehouse) continue;
-      const accepted = await this.listFreight(project, { stage: stage.metadata.name });
-      if (accepted.some(f => f.name === freightName)) {
-        promotable.push(stage.metadata.name);
-      }
+    for (const stage of await this.listStagesInOrder(project)) {
+      const accepted = await this.listFreight(project, { stage });
+      if (accepted.some(f => f.name === freight)) promotable.push(stage);
     }
     return promotable;
   }
 
-  /** Starts promoting a Freight to a Stage. */
+  /** Starts promoting a Freight to a Stage; Kargo rejects invalid ones. */
   async promote(project: string, stage: string, freight: string): Promise<MitekPromotion> {
     const body = await this.request<KargoPromotion>(
       `/projects/${encodeURIComponent(project)}/stages/${encodeURIComponent(stage)}/promotions`,
@@ -126,7 +108,7 @@ export class MitekKargoClient {
   }
 
   /**
-   * Checks a Promotion every `intervalMs` (default 2s) until it has finished,
+   * Checks a Promotion every `intervalMs` (default 10s) until it has finished,
    * then returns it (whatever the outcome). Calls `onChange` whenever its
    * phase changes. Throws on timeout (default 10 min) or when `signal` aborts.
    */
@@ -163,7 +145,7 @@ export class MitekKargoClient {
       if (options.signal?.aborted) {
         throw new MitekKargoError('Stopped waiting: the task was cancelled');
       }
-      await new Promise(resolve => setTimeout(resolve, options.intervalMs ?? 2_000));
+      await new Promise(resolve => setTimeout(resolve, options.intervalMs ?? 10_000));
     }
   }
 
@@ -172,12 +154,32 @@ export class MitekKargoClient {
     return `${trimSlash(this.uiUrl)}/project/${encodeURIComponent(project)}/promotion/${encodeURIComponent(name)}`;
   }
 
-  private async listStages(project: string): Promise<KargoStage[]> {
+  /**
+   * Stage names sorted so each comes after the Stages it takes Freight from:
+   * dev (fed by Warehouses), then stg (fed by dev), then prd (fed by stg).
+   */
+  private async listStagesInOrder(project: string): Promise<string[]> {
     const body = await this.request<{ items?: KargoStage[] }>(
       `/projects/${encodeURIComponent(project)}/stages`,
       `list Stages in ${project}`,
     );
-    return body.items ?? [];
+    const upstream = new Map(
+      (body.items ?? []).map(s => [
+        s.metadata.name,
+        (s.spec.requestedFreight ?? []).flatMap(r => r.sources?.stages ?? []),
+      ]),
+    );
+
+    const ordered: string[] = [];
+    let remaining = [...upstream.keys()].sort();
+    while (remaining.length) {
+      const ready = remaining.filter(s => upstream.get(s)!.every(up => ordered.includes(up)));
+      // A cycle (shouldn't happen) would leave nothing ready; keep the rest as-is.
+      const next = ready.length ? ready : remaining;
+      ordered.push(...next);
+      remaining = remaining.filter(s => !next.includes(s));
+    }
+    return ordered;
   }
 
   /** Calls the Kargo API; `action` describes the call for error messages. */
@@ -199,53 +201,8 @@ export class MitekKargoClient {
   }
 }
 
-function toFreight(f: KargoFreight): MitekFreight {
-  return {
-    name: f.metadata.name,
-    alias: f.alias ?? f.metadata.labels?.['kargo.akuity.io/alias'],
-    warehouse: f.origin?.kind === 'Warehouse' ? f.origin.name : '',
-    createdAt: f.metadata.creationTimestamp,
-    commits: (f.commits ?? []).map(({ id, message, branch, repoURL }) => ({
-      id,
-      message,
-      branch,
-      repoURL,
-    })),
-    verifiedIn: Object.keys(f.status?.verifiedIn ?? {}),
-    currentlyIn: Object.keys(f.status?.currentlyIn ?? {}),
-  };
-}
-
 function toPromotion(p: KargoPromotion): MitekPromotion {
-  return {
-    name: p.metadata.name,
-    stage: p.spec.stage,
-    freight: p.spec.freight,
-    phase: p.status?.phase,
-    message: p.status?.message,
-    createdAt: p.metadata.creationTimestamp,
-  };
-}
-
-/**
- * Sorts Stages so each comes after the Stages it takes Freight from:
- * dev (fed by Warehouses), then stg (fed by dev), then prd (fed by stg).
- */
-function inPromotionOrder(stages: KargoStage[]): KargoStage[] {
-  const upstreamOf = (stage: KargoStage) =>
-    (stage.spec.requestedFreight ?? []).flatMap(r => r.sources?.stages ?? []);
-
-  const ordered: KargoStage[] = [];
-  let remaining = [...stages].sort((a, b) => a.metadata.name.localeCompare(b.metadata.name));
-  while (remaining.length) {
-    const placed = new Set(ordered.map(s => s.metadata.name));
-    const ready = remaining.filter(s => upstreamOf(s).every(up => placed.has(up)));
-    // A cycle (shouldn't happen) would leave nothing ready; keep the rest as-is.
-    const next = ready.length ? ready : remaining;
-    ordered.push(...next);
-    remaining = remaining.filter(s => !next.includes(s));
-  }
-  return ordered;
+  return { name: p.metadata.name, phase: p.status?.phase, message: p.status?.message };
 }
 
 const trimSlash = (url: string) => url.replace(/\/$/, '');

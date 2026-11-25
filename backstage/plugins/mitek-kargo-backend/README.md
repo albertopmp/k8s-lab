@@ -12,10 +12,10 @@ Routes:
 - `GET /projects/:project/warehouses/:warehouse/freight?limit=` newest Freight of a Warehouse (default 10)
 - `GET /projects/:project/freight/:freight/stages` Stages the Freight can be promoted to (Kargo decides per Stage)
 
-Action (`mitek:kargo:promote`): inputs `entityRef`, `freight`, `stage`,
-`timeoutMinutes` (default 10). Checks the Freight belongs to the component and
-that Kargo accepts it in the Stage, promotes it, logs each phase and waits
-until it finishes. Failures fail the step with a readable message.
+Action (`mitek:kargo:promote`): inputs `entityRef`, `freight`, `stage`;
+output `promotionUrl`. Reads the Kargo Project from the component, promotes,
+logs each phase and waits up to 10 minutes. It doesn't repeat checks the form
+already does: Kargo rejects invalid promotions and its message fails the step.
 
 Files: `MitekKargoClient.ts` (Kargo REST API), `MitekKargoError.ts`,
 `router.ts` + `plugin.ts`, `promoteAction.ts` + `scaffolderModule.ts`.

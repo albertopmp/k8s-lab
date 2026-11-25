@@ -54,19 +54,15 @@ spec:
         entityRef: ${{ parameters.component }}
         freight: ${{ parameters.freight }}
         stage: ${{ parameters.stage }}
-        timeoutMinutes: 10
 
   output:
     links:
       - title: Open the Promotion in Kargo
         icon: dashboard
         url: ${{ steps.promote.output.promotionUrl }}
-        if: ${{ steps.promote.output.promotionUrl }}
       - title: Open the component
         icon: catalog
         entityRef: ${{ parameters.component }}
     text:
       - title: Result
-        content: |
-          Freight **${{ steps.promote.output.freightAlias or parameters.freight }}** is in **${{ parameters.stage }}**
-          (Kargo project `${{ steps.promote.output.project }}`, Promotion phase: **${{ steps.promote.output.phase }}**).
+        content: Freight promoted to **${{ parameters.stage }}**.

@@ -13,18 +13,6 @@
 export const MITEK_KARGO_PROJECT_ANNOTATION = 'kargo/project';
 
 /**
- * A Git commit referenced by a Freight.
- *
- * @public
- */
-export type MitekFreightCommit = {
-  id: string;
-  message?: string;
-  branch?: string;
-  repoURL?: string;
-};
-
-/**
  * Freight as served by the mitek-kargo backend: only the fields Backstage uses.
  *
  * @public
@@ -32,50 +20,22 @@ export type MitekFreightCommit = {
 export type MitekFreight = {
   name: string;
   alias?: string;
-  /** Warehouse the Freight came from. */
-  warehouse: string;
-  createdAt?: string;
-  commits: MitekFreightCommit[];
-  /** Stages where this Freight has been verified (e.g. dev, stg, prd). */
-  verifiedIn: string[];
-  /** Stages currently running this Freight. */
-  currentlyIn: string[];
+  commits: { id: string; message?: string }[];
 };
 
 /**
- * Response body of the mitek-kargo Freight endpoints.
+ * Response of `GET /projects/:project/warehouses/:warehouse/freight`.
  *
  * @public
  */
 export type MitekFreightList = { items: MitekFreight[] };
 
 /**
- * A Stage this Freight can be promoted to.
+ * Response of `GET /projects/:project/freight/:freight/stages`: Stage names.
  *
  * @public
  */
-export type MitekStage = { name: string };
-
-/**
- * Response body of the promotable-Stages endpoint.
- *
- * @public
- */
-export type MitekStageList = { items: MitekStage[] };
-
-/**
- * Lifecycle phase of a Kargo Promotion.
- *
- * @public
- */
-export type MitekPromotionPhase =
-  | 'Pending'
-  | 'Running'
-  | 'Succeeded'
-  | 'Failed'
-  | 'Errored'
-  | 'Aborted';
-
+export type MitekStageList = { items: string[] };
 
 /**
  * A Kargo Promotion: only the fields Backstage uses.
@@ -84,10 +44,7 @@ export type MitekPromotionPhase =
  */
 export type MitekPromotion = {
   name: string;
-  stage: string;
-  freight: string;
-  /** Empty until the Kargo controller picks the Promotion up. */
-  phase?: MitekPromotionPhase;
+  /** Pending, Running, Succeeded, Failed, Errored or Aborted; empty at first. */
+  phase?: string;
   message?: string;
-  createdAt?: string;
 };

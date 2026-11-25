@@ -4,12 +4,12 @@ import type { MitekFreight } from '@internal/backstage-plugin-mitek-kargo-common
 import { useMitekKargo } from '../useMitekKargo';
 import { formValue, KargoSelect } from './KargoSelect';
 
-/** e.g. "innocent-shark · b6d3953 · Deploy Kargo (in dev, stg)" */
+/** e.g. "innocent-shark · b6d3953 · Deploy Kargo" */
 function describe(f: MitekFreight) {
   const commit = f.commits[0];
-  const parts = [f.alias ?? f.name.slice(0, 7), commit?.id.slice(0, 7), commit?.message];
-  const where = f.currentlyIn.length ? ` (in ${f.currentlyIn.join(', ')})` : '';
-  return parts.filter(Boolean).join(' · ') + where;
+  return [f.alias ?? f.name.slice(0, 7), commit?.id.slice(0, 7), commit?.message]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 /**

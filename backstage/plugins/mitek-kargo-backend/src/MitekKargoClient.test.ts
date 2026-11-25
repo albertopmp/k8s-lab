@@ -2,62 +2,27 @@ import { MitekKargoClient } from './MitekKargoClient';
 import { MitekKargoError } from './MitekKargoError';
 
 // Shapes returned by the Kargo v1.12 REST API (/v1beta1).
-const freight = (
-  name: string,
-  createdAt: string,
-  warehouse: string,
-  extra: Record<string, unknown> = {},
-) => ({
-  metadata: { name, creationTimestamp: createdAt },
-  origin: { kind: 'Warehouse', name: warehouse },
-  ...extra,
-});
+const freightList = (...items: unknown[]) => ({ groups: { '': { items } } });
 
-const freightResponse = (items: unknown[]) => ({ groups: { '': { items } } });
+const older = {
+  metadata: {
+    name: 'aaa111',
+    creationTimestamp: '2026-11-25T10:00:00Z',
+    labels: { 'kargo.akuity.io/alias': 'old-otter' },
+  },
+  commits: [{ id: 'c0ffee1', message: 'first', branch: 'master' }],
+};
+const newer = {
+  metadata: { name: 'bbb222', creationTimestamp: '2026-11-25T12:00:00Z' },
+  alias: 'new-narwhal',
+  commits: [{ id: 'c0ffee2', message: 'second' }],
+};
 
-const allFreight = freightResponse([
-  freight('aaa111', '2026-11-25T10:00:00Z', 'guestbook', {
-    metadata: {
-      name: 'aaa111',
-      creationTimestamp: '2026-11-25T10:00:00Z',
-      labels: { 'kargo.akuity.io/alias': 'old-otter' },
-    },
-    commits: [{ id: 'c0ffee1', message: 'first', branch: 'master' }],
-    status: { verifiedIn: { dev: {}, stg: {} }, currentlyIn: { stg: {} } },
-  }),
-  freight('bbb222', '2026-11-25T12:00:00Z', 'guestbook', {
-    alias: 'new-narwhal',
-    commits: [{ id: 'c0ffee2', message: 'second' }],
-  }),
-  freight('ccc333', '2026-11-25T11:00:00Z', 'podinfo'),
-]);
-
-const stagesResponse = {
+const stages = {
   items: [
-    {
-      metadata: { name: 'prd' },
-      spec: {
-        requestedFreight: [
-          { origin: { kind: 'Warehouse', name: 'guestbook' }, sources: { stages: ['stg'] } },
-        ],
-      },
-    },
-    {
-      metadata: { name: 'dev' },
-      spec: {
-        requestedFreight: [
-          { origin: { kind: 'Warehouse', name: 'guestbook' }, sources: { direct: true } },
-        ],
-      },
-    },
-    {
-      metadata: { name: 'stg' },
-      spec: {
-        requestedFreight: [
-          { origin: { kind: 'Warehouse', name: 'guestbook' }, sources: { stages: ['dev'] } },
-        ],
-      },
-    },
+    { metadata: { name: 'prd' }, spec: { requestedFreight: [{ sources: { stages: ['stg'] } }] } },
+    { metadata: { name: 'dev' }, spec: { requestedFreight: [{ sources: { direct: true } }] } },
+    { metadata: { name: 'stg' }, spec: { requestedFreight: [{ sources: { stages: ['dev'] } }] } },
   ],
 };
 
@@ -72,59 +37,40 @@ describe('MitekKargoClient', () => {
     global.fetch = fetchMock as unknown as typeof fetch;
   });
 
-  it('lists one Warehouse’s Freight, newest first, with the token', async () => {
-    fetchMock.mockResolvedValue(ok(allFreight));
+  it('lists a Warehouse’s Freight newest first, with the token', async () => {
+    fetchMock.mockResolvedValue(ok(freightList(older, newer)));
 
-    const items = await client.listFreight('k8s-lab', { warehouse: 'guestbook' });
+    const items = await client.listFreight('k8s-lab', { warehouse: 'guestbook', limit: 10 });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://kargo/v1beta1/projects/k8s-lab/freight',
+      'http://kargo/v1beta1/projects/k8s-lab/freight?origins=guestbook',
       { headers: { Authorization: 'Bearer t0ken' } },
     );
-    expect(items.map(f => f.name)).toEqual(['bbb222', 'aaa111']);
-    expect(items[1]).toMatchObject({
-      alias: 'old-otter',
-      warehouse: 'guestbook',
-      commits: [{ id: 'c0ffee1', message: 'first', branch: 'master' }],
-      verifiedIn: ['dev', 'stg'],
-      currentlyIn: ['stg'],
-    });
-  });
-
-  it('caps the list with limit', async () => {
-    fetchMock.mockResolvedValue(ok(allFreight));
-    const items = await client.listFreight('k8s-lab', { limit: 2 });
-    expect(items.map(f => f.name)).toEqual(['bbb222', 'ccc333']);
-  });
-
-  it('asks Kargo per Stage and returns promotable Stages in order', async () => {
-    fetchMock.mockImplementation(async (url: string) => {
-      if (url.endsWith('/stages')) return ok(stagesResponse);
-      if (url.endsWith('?stage=dev')) return ok(allFreight);
-      if (url.endsWith('?stage=stg')) return ok(allFreight);
-      if (url.endsWith('?stage=prd')) return ok(freightResponse([])); // not verified in stg
-      return ok(allFreight);
-    });
-
-    await expect(client.getPromotableStages('k8s-lab', 'aaa111')).resolves.toEqual([
-      'dev',
-      'stg',
+    expect(items).toEqual([
+      { name: 'bbb222', alias: 'new-narwhal', commits: [{ id: 'c0ffee2', message: 'second' }] },
+      { name: 'aaa111', alias: 'old-otter', commits: [{ id: 'c0ffee1', message: 'first' }] },
     ]);
   });
 
-  it('fails clearly for unknown Freight', async () => {
-    fetchMock.mockImplementation(async (url: string) =>
-      ok(url.endsWith('/stages') ? stagesResponse : allFreight),
-    );
-    await expect(client.getPromotableStages('k8s-lab', 'nope')).rejects.toThrow(
-      'Freight nope does not exist in Kargo project k8s-lab',
-    );
+  it('caps the list with limit', async () => {
+    fetchMock.mockResolvedValue(ok(freightList(older, newer)));
+    const items = await client.listFreight('k8s-lab', { limit: 1 });
+    expect(items.map(f => f.name)).toEqual(['bbb222']);
+  });
+
+  it('asks Kargo per Stage and returns promotable Stages in promotion order', async () => {
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.endsWith('/stages')) return ok(stages);
+      if (url.endsWith('?stage=prd')) return ok(freightList()); // not verified in stg yet
+      return ok(freightList(older)); // dev and stg accept it
+    });
+
+    await expect(client.getPromotableStages('k8s-lab', 'aaa111')).resolves.toEqual(['dev', 'stg']);
   });
 
   it('promotes and waits until the Promotion finishes', async () => {
     const promotion = (phase?: string) => ({
       metadata: { name: 'stg.123' },
-      spec: { stage: 'stg', freight: 'aaa111' },
       status: phase ? { phase } : undefined,
     });
     fetchMock
@@ -155,22 +101,14 @@ describe('MitekKargoClient', () => {
   });
 
   it('times out with a link to the Promotion', async () => {
-    fetchMock.mockResolvedValue(
-      ok({ metadata: { name: 'p1' }, spec: { stage: 'stg', freight: 'f' }, status: { phase: 'Running' } }),
-    );
-    await expect(
-      client.waitForPromotion('k8s-lab', 'p1', { timeoutMs: 0 }),
-    ).rejects.toThrow(
+    fetchMock.mockResolvedValue(ok({ metadata: { name: 'p1' }, status: { phase: 'Running' } }));
+    await expect(client.waitForPromotion('k8s-lab', 'p1', { timeoutMs: 0 })).rejects.toThrow(
       'Promotion p1 is still Running after 0 min; it keeps running in Kargo: http://localhost:8081/project/k8s-lab/promotion/p1',
     );
   });
 
   it('turns API errors into readable MitekKargoErrors', async () => {
-    fetchMock.mockResolvedValue({
-      ok: false,
-      status: 403,
-      json: async () => ({}),
-    });
+    fetchMock.mockResolvedValue({ ok: false, status: 403, json: async () => ({}) });
     const error = await client.listFreight('k8s-lab').catch(e => e);
     expect(error).toBeInstanceOf(MitekKargoError);
     expect(error.status).toBe(403);

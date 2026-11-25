@@ -50,7 +50,7 @@ export function useMitekKargo() {
       const body = await get<MitekStageList>(
         `/projects/${project}/freight/${encodeURIComponent(freight)}/stages`,
       );
-      return body.items.map(stage => stage.name);
+      return body.items;
     },
   };
 }

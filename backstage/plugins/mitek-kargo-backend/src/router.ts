@@ -38,8 +38,9 @@ export function createRouter(client: MitekKargoClient | undefined, logger: Logge
 
   router.get('/projects/:project/freight/:freight/stages', async (req, res) => {
     const { project, freight } = req.params;
-    const stages = await client!.getPromotableStages(project, freight);
-    const body: MitekStageList = { items: stages.map(name => ({ name })) };
+    const body: MitekStageList = {
+      items: await client!.getPromotableStages(project, freight),
+    };
     res.json(body);
   });
 

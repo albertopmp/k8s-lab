@@ -5,8 +5,8 @@ import { FormFieldBlueprint } from '@backstage/plugin-scaffolder-react/alpha';
 /**
  * Mitek: frontend plugin for Kargo, backed by mitek-kargo-backend.
  *
- * - entity-card:mitek-kargo/deploy: "Deploy" button on the entity Overview
- *   (placement and filter set in app-config.yaml)
+ * - entity-card:mitek-kargo/promote: "Promote with Kargo" button on the entity
+ *   Overview (placement and filter set in app-config.yaml)
  * - MitekFreightPicker and MitekStagePicker scaffolder fields
  */
 export const mitekKargoPlugin = createFrontendPlugin({
@@ -14,9 +14,9 @@ export const mitekKargoPlugin = createFrontendPlugin({
   info: { packageJson: () => import('../package.json') },
   extensions: [
     EntityCardBlueprint.make({
-      name: 'deploy',
+      name: 'promote',
       params: {
-        loader: () => import('./cards/MitekDeployCard').then(m => <m.MitekDeployCard />),
+        loader: () => import('./cards/MitekPromoteCard').then(m => <m.MitekPromoteCard />),
       },
     }),
     FormFieldBlueprint.make({

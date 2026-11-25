@@ -7,10 +7,11 @@ import { RiRocketLine } from '@remixicon/react';
 const PROMOTE_TEMPLATE = '/create/templates/default/mitek-kargo-promote';
 
 /**
- * Mitek: full-width "Deploy" button that opens the Kargo promotion template
- * with this component already selected (the scaffolder reads `?formData=`).
+ * Mitek: full-width "Promote with Kargo" button that opens the Kargo
+ * promotion template with this component already selected (the scaffolder
+ * reads `?formData=`).
  */
-export function MitekDeployCard() {
+export function MitekPromoteCard() {
   const { entity } = useEntity();
   const formData = JSON.stringify({ component: stringifyEntityRef(entity) });
 
@@ -23,7 +24,7 @@ export function MitekDeployCard() {
           iconStart={<RiRocketLine />}
           style={{ width: '100%', justifyContent: 'center' }}
         >
-          Deploy via Kargo
+          Promote with Kargo
         </ButtonLink>
       </CardBody>
     </Card>

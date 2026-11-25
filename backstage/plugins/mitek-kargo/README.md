@@ -2,10 +2,10 @@
 
 Mitek frontend plugin for [Kargo](https://kargo.io).
 
-- `entity-card:mitek-kargo/deploy`: a "Deploy" button for the entity Overview
-  that opens the Kargo promotion template (`mitek-kargo-promote`) with the
-  component preselected via `?formData=`. Placement and filter are set in
-  app-config.yaml.
+- `entity-card:mitek-kargo/promote`: a "Promote with Kargo" button for the
+  entity Overview that opens the Kargo promotion template
+  (`mitek-kargo-promote`) with the component preselected (`?formData=`).
+  Placement and filter are set in app-config.yaml.
 
 Scaffolder fields:
 

@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd/app-selector: k8s-lab/instance-of=guestbook
     github.com/project-slug: albertopmp/k8s-lab
-    # Kargo Project holding this app's Warehouse (named after the app directory).
+    # Kargo Project holding this app's Warehouse (named after the app directory)
     kargo/project: k8s-lab
   tags:
     - kubernetes

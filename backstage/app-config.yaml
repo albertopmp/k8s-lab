@@ -140,13 +140,16 @@ app:
         config:
           type: content
 
-    # Mitek custom: Deploy button (packages/app/src/modules/mitek/deploy).
-    # Right column, above the GitHub Actions card, on Components only.
-    - entity-card:app/mitek-deploy:
+    # Mitek custom: Deploy button (plugins/mitek-kargo) that opens the Kargo
+    # promotion template with the component preselected. Right column, above
+    # the GitHub Actions card, on components managed by Kargo only.
+    - entity-card:mitek-kargo/deploy:
         config:
           type: info
           filter:
             kind: component
+            metadata.annotations.kargo/project:
+              $exists: true
 
     - entity-card:github-actions/recent-workflow-runs: false
     - entity-card:github-actions/latest-workflow-run:

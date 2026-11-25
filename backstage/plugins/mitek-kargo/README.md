@@ -1,6 +1,13 @@
 # mitek-kargo
 
-Mitek frontend plugin for [Kargo](https://kargo.io): two scaffolder fields.
+Mitek frontend plugin for [Kargo](https://kargo.io).
+
+- `entity-card:mitek-kargo/deploy`: a "Deploy" button for the entity Overview
+  that opens the Kargo promotion template (`mitek-kargo-promote`) with the
+  component preselected via `?formData=`. Placement and filter are set in
+  app-config.yaml.
+
+Scaffolder fields:
 
 - `MitekFreightPicker`: the 10 newest Freight of the component chosen in
   another field (`ui:options.entityField`, default `component`), with where

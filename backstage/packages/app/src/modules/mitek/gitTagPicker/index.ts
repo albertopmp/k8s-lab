@@ -1,0 +1,1 @@
+export { mitekGitTagPickerModule } from './mitekGitTagPickerModule';

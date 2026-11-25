@@ -37,6 +37,7 @@
     "@backstage/plugin-notifications": "^0.6.2",
     "@backstage/plugin-org": "^0.8.1",
     "@backstage/plugin-scaffolder": "^1.41.0",
+    "@backstage/plugin-scaffolder-react": "^3.0.0",
     "@backstage/plugin-search": "^1.8.0",
     "@backstage/plugin-signals": "^0.0.37",
     "@backstage/plugin-techdocs": "^1.20.0",

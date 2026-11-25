@@ -1,0 +1,11 @@
+# Mitek custom templates. The catalog reads this file from GitHub (see
+# catalog.locations in app-config.yaml), so adding a target here or editing a
+# template only needs a push: no image rebuild or restart.
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: mitek-templates
+  description: Mitek software templates
+spec:
+  targets:
+    - ./k8s-deployment/template.yaml

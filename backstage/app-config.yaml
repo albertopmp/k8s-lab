@@ -96,22 +96,13 @@ app:
 
     - page:catalog/entity:
         config:
-          # Required for group/tab icons to render.
-          showNavItemIcons: true
-          # Icon IDs must exist in the app's icon registry. Built-in IDs:
-          # catalog, scaffolder, techdocs, search, chat, dashboard, docs, email,
-          # github, group, help, user, warning, kind:<api|component|domain|group|
-          # location|resource|system|template|user>
           groups:
             - overview:
                 title: Overview
-                icon: dashboard
             - documentation:
                 title: Documentation
-                icon: techdocs
             - deployment:
                 title: ArgoCD
-                icon: kind:resource
           defaultContentOrder: natural
 
     # Tab order follows the order of these entity-content entries:
@@ -132,9 +123,7 @@ app:
     - entity-content:backstage-community-argocd/deployment-summary
 
     # GitHub Actions (standalone tab, last)
-    - entity-content:github-actions:
-        config:
-          icon: github
+    - entity-content:github-actions
 
     # Hide the APIs tab on Component pages
     - entity-content:api-docs/apis: false
@@ -294,6 +283,14 @@ catalog:
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
+
+    # Mitek custom templates, read from GitHub (not baked into the image).
+    # New or edited templates appear after a push and the next catalog
+    # refresh (a few minutes), or instantly with "Refresh" on the Location.
+    - type: url
+      target: https://github.com/albertopmp/k8s-lab/blob/master/backstage/templates/mitek/locations.yaml
+      rules:
+        - allow: [Location, Template]
 
     ## Uncomment these lines to add more example data
     # - type: url

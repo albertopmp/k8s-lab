@@ -4,7 +4,6 @@ metadata:
   name: kargo-k8s-lab
   description: Kargo Project, Warehouses and Stages for the k8s-lab repository.
   annotations:
-    backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/kargo-k8s-lab/catalog-info.yaml
     argocd/app-selector: k8s-lab/instance-of=kargo-k8s-lab
     github.com/project-slug: albertopmp/k8s-lab
     # Kargo Project holding this app's Warehouse (named after the app directory).

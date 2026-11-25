@@ -4,7 +4,6 @@ metadata:
   name: cert-manager
   description: cert-manager issues certificates in the local Kubernetes lab (Kargo webhook certificate).
   annotations:
-    backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/cert-manager/catalog-info.yaml
     argocd/app-selector: k8s-lab/instance-of=cert-manager
     github.com/project-slug: albertopmp/k8s-lab
     # Kargo Project holding this app's Warehouse (named after the app directory).

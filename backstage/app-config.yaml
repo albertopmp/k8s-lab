@@ -294,11 +294,12 @@ catalog:
       rules:
         - allow: [User, Group]
 
-    # Lab apps (argocd/apps/*/catalog-info.yaml), read from GitHub.
+    # Lab apps, read from GitHub: every argocd/apps/<app>/catalog-info.yaml
+    # (glob), so a new app folder is registered without listing it anywhere.
     - type: url
-      target: https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/locations.yaml
+      target: https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/*/catalog-info.yaml
       rules:
-        - allow: [Location, Component]
+        - allow: [Component]
 
     # Mitek custom templates, read from GitHub (not baked into the image).
     # New or edited templates appear after a push and the next catalog

@@ -28,12 +28,12 @@ up:
 	$(MAKE) backstage-image PROFILE="$(PROFILE)" BACKSTAGE_TAG="$(BACKSTAGE_TAG)"
 	$(KUBECTL) wait --for=condition=Available --timeout=5m -n argocd deployment/argocd-server
 	$(KUBECTL) apply -f argocd/appset.yaml
-	@attempt=0; until $(KUBECTL) -n backstage get deployment/backstage >/dev/null 2>&1; do \
+	@attempt=0; until $(KUBECTL) -n apps-prd get deployment/backstage-prd >/dev/null 2>&1; do \
 		attempt=$$((attempt + 1)); \
 		if [ $$attempt -ge 120 ]; then echo "Timed out waiting for Argo CD to create the Backstage deployment." >&2; exit 1; fi; \
 		sleep 5; \
 	done
-	$(KUBECTL) -n backstage rollout status deployment/backstage --timeout=10m
+	$(KUBECTL) -n apps-prd rollout status deployment/backstage-prd --timeout=10m
 
 down:
 	minikube delete --profile "$(PROFILE)"
@@ -45,7 +45,7 @@ status:
 
 ui:
 	@$(KUBECTL_DIRECT) -n argocd port-forward svc/argocd-server 8080:80 >/dev/null & argocd=$$!; \
-	$(KUBECTL_DIRECT) -n backstage port-forward svc/backstage 7007:7007 >/dev/null & backstage=$$!; \
+	$(KUBECTL_DIRECT) -n apps-prd port-forward svc/backstage-prd 7007:7007 >/dev/null & backstage=$$!; \
 	trap 'kill $$argocd $$backstage 2>/dev/null' INT TERM EXIT; \
 	sleep 2; open -a "Google Chrome" "http://localhost:8080" "http://localhost:7007"; \
 	echo "Argo CD: http://localhost:8080  Backstage: http://localhost:7007"; \

@@ -1,9 +1,6 @@
-name: guestbook-dev
 repoURL: https://github.com/argoproj/argocd-example-apps.git
 targetRevision: 8088f4c0d970abb09e250248cc97e35623447cb5
 sourcePath: helm-guestbook
 chartName: ""
-namespace: guestbook-dev
-replicas: 1
 helmValues:
   replicaCount: 1

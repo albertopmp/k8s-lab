@@ -5,7 +5,7 @@ metadata:
   description: Local Backstage developer portal installed from the official Helm chart.
   annotations:
     backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/backstage/catalog-info.yaml
-    argocd/app-name: backstage
+    argocd/app-selector: k8s-lab/instance-of=backstage
     github.com/project-slug: albertopmp/k8s-lab
   tags:
     - kubernetes

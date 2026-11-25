@@ -1,9 +1,6 @@
-name: guestbook-stg
 repoURL: https://github.com/argoproj/argocd-example-apps.git
-targetRevision: 8088f4c0d970abb09e250248cc97e35623447cb5
+targetRevision: 723b86e01bea11dcf72316cb172868fcbf05d69e
 sourcePath: helm-guestbook
 chartName: ""
-namespace: guestbook-stg
-replicas: 1
 helmValues:
   replicaCount: 1

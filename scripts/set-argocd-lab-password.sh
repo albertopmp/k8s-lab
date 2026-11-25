@@ -2,7 +2,7 @@
 set -eu
 
 context=${1:-k8s-lab}
-password=$(minikube kubectl -p "$context" -- -n backstage get secret backstage-argocd -o jsonpath='{.data.ARGOCD_PASSWORD}' | base64 --decode)
+password=$(minikube kubectl -p "$context" -- -n apps-prd get secret backstage-argocd -o jsonpath='{.data.ARGOCD_PASSWORD}' | base64 --decode)
 if [ -z "$password" ]; then
   echo "ARGOCD_PASSWORD is missing from the backstage-argocd Secret." >&2
   exit 1

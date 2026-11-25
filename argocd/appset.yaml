@@ -17,12 +17,16 @@ spec:
           - path: argocd/apps/*/*.yaml
           - path: argocd/apps/*/catalog-info.yaml
             exclude: true
+  # Everything identifying an instance comes from its path,
+  # argocd/apps/<app>/<env>.yaml:
+  #   Application name  <app>-<env>      e.g. guestbook-stg
+  #   namespace         apps-<env>       e.g. apps-stg (shared by all apps of an env)
+  #   labels            instance-of=<app>, environment=<env>
+  # Backstage finds all instances of an app with
+  # `argocd/app-selector: k8s-lab/instance-of=<app>`.
   template:
     metadata:
-      name: '{{ .name }}'
-      # Default labels on every Application, derived from the file's location
-      # (argocd/apps/<app>/<env>.yaml). Backstage finds all instances of an app
-      # with `argocd/app-selector: k8s-lab/instance-of=<app>`.
+      name: '{{ .path.basename }}-{{ trimSuffix ".yaml" .path.filename }}'
       labels:
         k8s-lab/instance-of: '{{ .path.basename }}'
         k8s-lab/environment: '{{ trimSuffix ".yaml" .path.filename }}'
@@ -38,7 +42,7 @@ spec:
             {{- .helmValues | toYaml | nindent 12 }}
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{ .namespace }}'
+        namespace: 'apps-{{ trimSuffix ".yaml" .path.filename }}'
       syncPolicy:
         syncOptions:
           - CreateNamespace=true

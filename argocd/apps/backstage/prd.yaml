@@ -1,9 +1,7 @@
-name: backstage
 repoURL: https://backstage.github.io/charts
 targetRevision: 2.10.2
 sourcePath: ""
 chartName: backstage
-namespace: backstage
 helmValues:
   backstage:
     replicas: 1

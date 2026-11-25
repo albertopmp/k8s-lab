@@ -11,11 +11,21 @@ spec:
     - git:
         repoURL: https://github.com/albertopmp/k8s-lab.git
         revision: master
+        # Each argocd/apps/<app>/<env>.yaml (dev, stg, prd) is one Application;
+        # all instances of an app share the folder's catalog-info.yaml.
         files:
-          - path: argocd/apps/*/app.yaml
+          - path: argocd/apps/*/*.yaml
+          - path: argocd/apps/*/catalog-info.yaml
+            exclude: true
   template:
     metadata:
       name: '{{ .name }}'
+      # Default labels on every Application, derived from the file's location
+      # (argocd/apps/<app>/<env>.yaml). Backstage finds all instances of an app
+      # with `argocd/app-selector: k8s-lab/instance-of=<app>`.
+      labels:
+        k8s-lab/instance-of: '{{ .path.basename }}'
+        k8s-lab/environment: '{{ trimSuffix ".yaml" .path.filename }}'
     spec:
       project: default
       source:

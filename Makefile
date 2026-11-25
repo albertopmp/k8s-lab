@@ -27,6 +27,7 @@ up:
 	$(MAKE) secrets PROFILE="$(PROFILE)"
 	$(MAKE) backstage-image PROFILE="$(PROFILE)" BACKSTAGE_TAG="$(BACKSTAGE_TAG)"
 	$(KUBECTL) wait --for=condition=Available --timeout=5m -n argocd deployment/argocd-server
+	$(KUBECTL) apply -f argocd/repositories.yaml
 	$(KUBECTL) apply -f argocd/appset.yaml
 	@attempt=0; until $(KUBECTL) -n apps-prd get deployment/backstage-prd >/dev/null 2>&1; do \
 		attempt=$$((attempt + 1)); \
@@ -46,9 +47,10 @@ status:
 ui:
 	@$(KUBECTL_DIRECT) -n argocd port-forward svc/argocd-server 8080:80 >/dev/null & argocd=$$!; \
 	$(KUBECTL_DIRECT) -n apps-prd port-forward svc/backstage-prd 7007:7007 >/dev/null & backstage=$$!; \
-	trap 'kill $$argocd $$backstage 2>/dev/null' INT TERM EXIT; \
-	sleep 2; open -a "Google Chrome" "http://localhost:8080" "http://localhost:7007"; \
-	echo "Argo CD: http://localhost:8080  Backstage: http://localhost:7007"; \
+	$(KUBECTL_DIRECT) -n apps-prd port-forward svc/kargo-api 8081:80 >/dev/null & kargo=$$!; \
+	trap 'kill $$argocd $$backstage $$kargo 2>/dev/null' INT TERM EXIT; \
+	sleep 2; open -a "Google Chrome" "http://localhost:8080" "http://localhost:7007" "http://localhost:8081"; \
+	echo "Argo CD: http://localhost:8080  Backstage: http://localhost:7007  Kargo: http://localhost:8081"; \
 	echo "Press CTRL-C to stop port forwarding."; \
 	wait
 
@@ -61,7 +63,7 @@ secrets:
 	@test -f secrets.local.yaml || { echo "Create secrets.local.yaml from secrets.local.example.yaml and fill in the placeholders." >&2; exit 1; }
 	@if grep -q 'REPLACE_ME' secrets.local.yaml; then echo "Fill in every REPLACE_ME value in secrets.local.yaml before applying it." >&2; exit 1; fi
 	$(KUBECTL) apply -f secrets.local.yaml
-	sh ./scripts/set-argocd-lab-password.sh "$(PROFILE)"
+	sh ./scripts/set-lab-credentials.sh "$(PROFILE)"
 
 argocd-password:
 	$(KUBECTL) -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode; printf '\n'

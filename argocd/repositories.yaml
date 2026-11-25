@@ -1,0 +1,14 @@
+# Repositories Argo CD needs that are not covered by secrets.local.yaml.
+# Not synced from Git: applied by `make up` (or kubectl apply -f).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kargo-charts
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  name: kargo-charts
+  type: helm
+  url: ghcr.io/akuity/kargo-charts
+  enableOCI: "true"

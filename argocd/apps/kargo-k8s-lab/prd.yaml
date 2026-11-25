@@ -1,0 +1,6 @@
+# Kargo Project, Warehouse and Stages for this repository (kargo/projects/k8s-lab).
+repoURL: https://github.com/albertopmp/k8s-lab.git
+targetRevision: master
+sourcePath: kargo/projects/k8s-lab
+chartName: ""
+helmValues: {}

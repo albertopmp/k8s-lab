@@ -1,0 +1,36 @@
+{{- /*
+One Stage per entry in .Values.stages. The first takes Freight straight from
+the Warehouse; each later one from the Stage before it. Promotion is a smoke
+step: `compose-output` only builds an output value, touching nothing.
+*/ -}}
+{{- $prev := "" }}
+{{- range .Values.stages }}
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: {{ . }}
+  namespace: {{ $.Values.project }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: {{ $.Values.project }}
+      sources:
+        {{- if $prev }}
+        stages:
+          - {{ $prev }}
+        {{- else }}
+        direct: true
+        {{- end }}
+  promotionTemplate:
+    spec:
+      steps:
+        - uses: compose-output
+          as: smoke
+          config:
+            message: smoke promotion to {{ . }}
+{{- $prev = . }}
+{{- end }}

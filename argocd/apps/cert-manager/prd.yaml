@@ -1,0 +1,8 @@
+# cert-manager issues the self-signed certificate for Kargo's admission webhooks.
+repoURL: https://charts.jetstack.io
+targetRevision: v1.21.3
+sourcePath: ""
+chartName: cert-manager
+helmValues:
+  crds:
+    enabled: true

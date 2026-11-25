@@ -1,0 +1,18 @@
+# Kargo control plane (OCI chart; the repository is declared in argocd/repositories.yaml).
+repoURL: ghcr.io/akuity/kargo-charts
+targetRevision: 1.12.7
+sourcePath: ""
+chartName: kargo
+helmValues:
+  api:
+    # Reached with `make ui` at http://localhost:8081.
+    host: localhost:8081
+    # Admin account: password hash (same password as Argo CD's lab user) and
+    # token signing key live in this Secret, created by `make secrets`.
+    secret:
+      name: kargo-admin
+    tls:
+      enabled: false
+  externalWebhooksServer:
+    tls:
+      enabled: false

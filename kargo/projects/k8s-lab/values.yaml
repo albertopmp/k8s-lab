@@ -1,0 +1,11 @@
+# Kargo Project (and its namespace).
+project: k8s-lab
+# Git repository the Warehouse subscribes to; every new commit on the branch
+# becomes Freight.
+repoURL: https://github.com/albertopmp/k8s-lab.git
+branch: master
+# Promotion order; each Stage after the first takes Freight from the previous one.
+stages:
+  - dev
+  - stg
+  - prd

@@ -4,7 +4,7 @@ kind: Template
 metadata:
   name: mitek-k8s-deployment
   title: Kubernetes Deployment
-  description: Generate a Kubernetes Deployment manifest for a catalog Component at one of its Git tags, with a pinned image digest and environment variables.
+  description: Generate a Kubernetes Deployment manifest for a catalog Component and one of its Kargo Freight, with a pinned image digest and environment variables.
   tags:
     - mitek
     - kubernetes
@@ -16,7 +16,7 @@ spec:
     - title: Source
       required:
         - component
-        - gitTag
+        - freight
       properties:
         component:
           title: Component
@@ -26,13 +26,13 @@ spec:
           ui:options:
             catalogFilter:
               kind: Component
-              metadata.annotations.github.com/project-slug:
+              metadata.annotations.kargo/project:
                 exists: true
-        gitTag:
-          title: Git tag
+        freight:
+          title: Freight
           type: string
-          description: Existing tag of the component's GitHub repository; used as the image tag.
-          ui:field: MitekGitTagPicker
+          description: Kargo Freight of the component (its app Warehouse), newest first.
+          ui:field: MitekFreightPicker
           ui:options:
             entityField: component
 
@@ -65,10 +65,15 @@ spec:
           type: string
           description: Registry and repository, e.g. ghcr.io/mitek/api
           pattern: '^[a-z0-9]+([._:/-][a-z0-9]+)*$'
+        imageTag:
+          title: Tag
+          type: string
+          description: Optional and informational; the digest is what Kubernetes pulls.
+          pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$'
         imageDigest:
           title: Digest
           type: string
-          description: Immutable digest of the image built from the selected tag, e.g. sha256:3f5c... (64 hex characters). Kubernetes pulls by digest.
+          description: Immutable image digest, e.g. sha256:3f5c... (64 hex characters). Kubernetes pulls by digest.
           pattern: '^sha256:[a-f0-9]{64}$'
 
     - title: Environment variables
@@ -111,9 +116,9 @@ spec:
             namespace: ${{ parameters.namespace }}
             labels:
               app.kubernetes.io/name: ${{ parameters.name }}
-              app.kubernetes.io/version: ${{ parameters.gitTag | dump }}
             annotations:
               backstage.io/source-entity: ${{ parameters.component }}
+              kargo.akuity.io/freight: ${{ parameters.freight }}
           spec:
             replicas: 1
             selector:
@@ -126,7 +131,7 @@ spec:
               spec:
                 containers:
                   - name: ${{ parameters.name }}
-                    image: ${{ parameters.imageRepository }}:${{ parameters.gitTag }}@${{ parameters.imageDigest }}
+                    image: ${{ parameters.imageRepository }}{% if parameters.imageTag %}:${{ parameters.imageTag }}{% endif %}@${{ parameters.imageDigest }}
           {%- if parameters.env and parameters.env.length %}
                     env:
           {%- for e in parameters.env %}

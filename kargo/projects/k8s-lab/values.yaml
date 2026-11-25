@@ -1,10 +1,21 @@
 # Kargo Project (and its namespace).
 project: k8s-lab
-# Git repository the Warehouse subscribes to; every new commit on the branch
-# becomes Freight.
+# Git repository the Warehouses subscribe to.
 repoURL: https://github.com/albertopmp/k8s-lab.git
 branch: master
-# Promotion order; each Stage after the first takes Freight from the previous one.
+# One Warehouse per app directory, named after it: a new commit touching
+# argocd/apps/<app>/ becomes Freight for that app. Keep in sync with the
+# folders in argocd/apps/ (each has a catalog-info.yaml whose
+# `kargo/project` annotation points at this Project).
+apps:
+  - backstage
+  - cert-manager
+  - guestbook
+  - kargo
+  - kargo-k8s-lab
+  - podinfo
+# Promotion order; each Stage after the first takes Freight from the previous
+# one. Every Stage receives Freight from every app's Warehouse.
 stages:
   - dev
   - stg

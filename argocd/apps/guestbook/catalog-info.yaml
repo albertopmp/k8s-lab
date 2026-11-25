@@ -7,6 +7,8 @@ metadata:
     backstage.io/source-location: url:https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/guestbook/catalog-info.yaml
     argocd/app-selector: k8s-lab/instance-of=guestbook
     github.com/project-slug: albertopmp/k8s-lab
+    # Kargo Project holding this app's Warehouse (named after the app directory).
+    kargo/project: k8s-lab
   tags:
     - kubernetes
     - helm

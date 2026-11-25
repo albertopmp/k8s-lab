@@ -1,6 +1,7 @@
 {{- /*
-One Stage per entry in .Values.stages. The first takes Freight straight from
-the Warehouse; each later one from the Stage before it. Promotion is a smoke
+One Stage per entry in .Values.stages, each requesting Freight from every app
+Warehouse (auto-promotion runs independently per app). The first Stage takes
+Freight straight from the Warehouses; each later one from the Stage before it. Promotion is a smoke
 step: `compose-output` only builds an output value, touching nothing.
 */ -}}
 {{- $prev := "" }}
@@ -15,9 +16,10 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   requestedFreight:
+  {{- range $.Values.apps }}
     - origin:
         kind: Warehouse
-        name: {{ $.Values.project }}
+        name: {{ . }}
       sources:
         {{- if $prev }}
         stages:
@@ -25,6 +27,7 @@ spec:
         {{- else }}
         direct: true
         {{- end }}
+  {{- end }}
   promotionTemplate:
     spec:
       steps:

@@ -212,19 +212,22 @@ argocd:
           username: ${ARGOCD_USERNAME}
           password: ${ARGOCD_PASSWORD}
 
+# Mitek custom: Kargo API for the mitek-kargo backend plugin
+# (plugins/mitek-kargo-backend). The token is a read-only Kargo
+# API token (k8s-lab Project, kargo-viewer role) that `make secrets` copies
+# into the backstage-kargo Secret.
+mitek:
+  kargo:
+    baseUrl: http://kargo-api.apps-prd.svc.cluster.local
+    token: ${KARGO_API_TOKEN}
+
 proxy:
-  endpoints:
-    # Mitek custom: read-only GitHub API access for the MitekGitTagPicker
-    # template field (packages/app/src/modules/mitek/gitTagPicker). Uses the
-    # same GITHUB_TOKEN as the integration; any signed-in Backstage user can
-    # make GET requests with it, which is fine for this local lab.
-    '/github':
-      target: https://api.github.com
-      changeOrigin: true
-      allowedMethods: ['GET']
-      headers:
-        Authorization: Bearer ${GITHUB_TOKEN}
-        Accept: application/vnd.github+json
+  ### Example for how to add a proxy endpoint for the frontend.
+  ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+  # endpoints:
+  #   '/test':
+  #     target: 'https://example.com'
+  #     changeOrigin: true
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -289,6 +292,12 @@ catalog:
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
+
+    # Lab apps (argocd/apps/*/catalog-info.yaml), read from GitHub.
+    - type: url
+      target: https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/locations.yaml
+      rules:
+        - allow: [Location, Component]
 
     # Mitek custom templates, read from GitHub (not baked into the image).
     # New or edited templates appear after a push and the next catalog

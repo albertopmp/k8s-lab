@@ -14,6 +14,9 @@ backend.add(import('@backstage/plugin-app-backend'));
 backend.add(import('@backstage/plugin-proxy-backend'));
 backend.add(import('@backstage-community/plugin-argocd-backend'));
 
+// Mitek custom plugins
+backend.add(import('@internal/backstage-plugin-mitek-kargo-backend'));
+
 // scaffolder plugin
 backend.add(import('@backstage/plugin-scaffolder-backend'));
 backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));

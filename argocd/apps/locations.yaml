@@ -1,0 +1,16 @@
+# Backstage catalog entries for every app in this folder. Loaded by
+# catalog.locations in backstage/app-config.yaml; add new apps here.
+# (Not an Argo CD app file: the ApplicationSet only reads argocd/apps/*/*.yaml.)
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: k8s-lab-apps
+  description: Apps deployed by Argo CD in the local Kubernetes lab
+spec:
+  targets:
+    - ./backstage/catalog-info.yaml
+    - ./cert-manager/catalog-info.yaml
+    - ./guestbook/catalog-info.yaml
+    - ./kargo/catalog-info.yaml
+    - ./kargo-k8s-lab/catalog-info.yaml
+    - ./podinfo/catalog-info.yaml

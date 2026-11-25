@@ -16,6 +16,7 @@ helmValues:
     extraEnvVarsSecrets:
       - backstage-argocd
       - backstage-github-auth
+      - backstage-kargo
     # Only one pod at a time, so plugin DB migrations never run concurrently.
     strategy:
       type: Recreate

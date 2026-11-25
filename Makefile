@@ -2,7 +2,7 @@ SHELL := /bin/sh
 .PHONY: up down status argocd-ui backstage-ui backstage-image argocd-password secrets
 
 PROFILE ?= k8s-lab
-BACKSTAGE_TAG ?= 0.1.5
+BACKSTAGE_TAG ?= 0.1.6
 K8S_VERSION ?= v1.34.0
 CPUS ?= 4
 MEMORY ?= 4096
@@ -38,11 +38,12 @@ status:
 	$(KUBECTL) get nodes
 	$(KUBECTL) get pods -A
 
-argocd-ui:
-	$(KUBECTL) -n argocd port-forward svc/argocd-server 8080:80
-
-backstage-ui:
-	$(KUBECTL) -n backstage port-forward svc/backstage 7007:7007
+ui:
+	open -a "Google Chrome" "http://localhost:8080" "http://localhost:7007"
+	$(KUBECTL) -n argocd port-forward svc/argocd-server 8080:80 & \
+	$(KUBECTL) -n backstage port-forward svc/backstage 7007:7007 & \
+	echo "Press CTRL-C to stop port forwarding and exit the script"
+	wait
 
 backstage-image:
 	cd backstage && corepack yarn install --immutable && corepack yarn tsc && corepack yarn build:backend

@@ -10,7 +10,7 @@ helmValues:
     image:
       registry: ""
       repository: k8s-lab/backstage
-      tag: 0.1.5
+      tag: 0.1.6
       pullPolicy: Never
     args:
       - --config
@@ -18,3 +18,14 @@ helmValues:
     extraEnvVarsSecrets:
       - backstage-argocd
       - backstage-github-auth
+    # Only one pod at a time, so plugin DB migrations never run concurrently.
+    strategy:
+      type: Recreate
+  # Bundled PostgreSQL (Bitnami subchart) on an 8Gi PVC. Credentials come from
+  # the backstage-postgresql-auth Secret in secrets.local.yaml: Argo CD renders
+  # with `helm template`, so a chart-generated password would change on every
+  # sync and lock Backstage out of the existing data volume.
+  postgresql:
+    enabled: true
+    auth:
+      existingSecret: backstage-postgresql-auth

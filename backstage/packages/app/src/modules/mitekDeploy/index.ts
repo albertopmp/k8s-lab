@@ -1,0 +1,1 @@
+export { mitekDeployModule } from './mitekDeployModule';

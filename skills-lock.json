@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "skills": {
+    "backend-plugin-development": {
+      "source": "backstage.io",
+      "sourceUrl": "https://backstage.io",
+      "sourceType": "well-known",
+      "computedHash": "8960c38d7d074e8acfeeee7feca1f342427b9ebe5b0e668263d2a54989acc2d7",
+      "wellKnownDigest": "sha256:ca6d732d3faa372b3515bf355a73e06bc6b1987415aaefd4642a04b480ef9d40"
+    },
+    "frontend-plugin-development": {
+      "source": "backstage.io",
+      "sourceUrl": "https://backstage.io",
+      "sourceType": "well-known",
+      "computedHash": "ec6ef0e6e78cf3d5d915dd80ddf3053510d9a577cbbd0a558a2d31b2f8ce044b",
+      "wellKnownDigest": "sha256:5cab040b07beb566d941c35661d361b217550e76193a4856765586f25ad8428a"
+    },
+    "plugin-analytics-instrumentation": {
+      "source": "backstage.io",
+      "sourceUrl": "https://backstage.io",
+      "sourceType": "well-known",
+      "computedHash": "751f1442665fc61d0b69d50710a6048556ddfd966662155cd2a60038a504c22c",
+      "wellKnownDigest": "sha256:093a0e74d9fdf18fab697c5e7857f9dbdeb45b0f53ea36c7d1e6cc1bcd9fd357"
+    }
+  }
+}

@@ -96,42 +96,61 @@ app:
 
     - page:catalog/entity:
         config:
+          # Required for group/tab icons to render.
           showNavItemIcons: true
-          defaultContentOrder: natural
+          # Icon IDs must exist in the app's icon registry. Built-in IDs:
+          # catalog, scaffolder, techdocs, search, chat, dashboard, docs, email,
+          # github, group, help, user, warning, kind:<api|component|domain|group|
+          # location|resource|system|template|user>
           groups:
             - overview:
                 title: Overview
-            - delivery:
-                title: Delivery
+                icon: dashboard
             - documentation:
                 title: Documentation
+                icon: techdocs
+            - deployment:
+                title: ArgoCD
+                icon: kind:resource
+          defaultContentOrder: natural
+
+    # Tab order follows the order of these entity-content entries:
+    # Overview > Documentation > ArgoCD > GitHub Actions
 
     # Overview
     - entity-content:catalog/overview:
         config:
           group: overview
 
-    # Delivery
-    - entity-content:github-actions/entity:
-        config:
-          group: delivery
-
     # Documentation
     - entity-content:techdocs:
         config:
           group: documentation
 
-    - entity-content:api-docs/definition:
-        config:
-          group: documentation
+    # ArgoCD (both contents already default to the "deployment" group)
+    - entity-content:backstage-community-argocd/deployment-lifecycle
+    - entity-content:backstage-community-argocd/deployment-summary
 
-    - entity-content:api-docs/apis:
+    # GitHub Actions (standalone tab, last)
+    - entity-content:github-actions:
         config:
-          group: documentation
+          icon: github
 
-    # API relationship cards
-    - entity-card:api-docs/provided-apis
-    - entity-card:api-docs/consumed-apis
+    # Hide the APIs tab on Component pages
+    - entity-content:api-docs/apis: false
+
+    # Overview cards: the catalog graph is listed first so it renders first
+    - entity-card:catalog-graph/relations:
+        config:
+          type: content
+
+    # Mitek custom: Deploy button (packages/app/src/modules/mitekDeploy), right column above GH last run
+    - entity-card:app/mitek-deploy
+
+    - entity-card:github-actions/recent-workflow-runs: false
+    - entity-card:github-actions/latest-workflow-run:
+        config:
+          type: info
 
 organization:
   name: My Company
@@ -153,10 +172,17 @@ backend:
   # Local lab only: this allows unauthenticated API calls. Do not use in production.
   auth:
     dangerouslyDisableDefaultAuthPolicy: true
-  # Ephemeral local database: data is lost when the pod restarts.
+  # PostgreSQL from the Helm chart's bundled subchart, stored on a PVC so
+  # registered entities survive pod restarts. The chart injects these env vars.
+  # For `yarn start` without Postgres, override this in app-config.local.yaml
+  # with `client: better-sqlite3` and `connection: ':memory:'`.
   database:
-    client: better-sqlite3
-    connection: ':memory:'
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
   # see https://backstage.io/docs/ai/mcp-actions#actions-configuration for more details
   actions:
     pluginSources:

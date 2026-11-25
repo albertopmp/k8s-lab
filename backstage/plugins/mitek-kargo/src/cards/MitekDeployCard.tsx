@@ -20,9 +20,8 @@ export function MitekDeployCard() {
         <ButtonLink
           href={`${PROMOTE_TEMPLATE}?formData=${encodeURIComponent(formData)}`}
           variant="primary"
-          iconStart={<RiRocketLine size={22} />}
-          // Bigger than BUI's largest size (medium): taller, larger text.
-          style={{ width: '100%', justifyContent: 'center', height: 48, fontSize: '1.125rem' }}
+          iconStart={<RiRocketLine />}
+          style={{ width: '100%', justifyContent: 'center' }}
         >
           Deploy
         </ButtonLink>

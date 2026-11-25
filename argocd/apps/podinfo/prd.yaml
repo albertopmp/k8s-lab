@@ -3,4 +3,4 @@ targetRevision: 6.17.0
 sourcePath: ""
 chartName: podinfo
 helmValues:
-  replicaCount: 3
+  replicaCount: 1

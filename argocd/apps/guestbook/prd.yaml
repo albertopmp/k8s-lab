@@ -3,4 +3,4 @@ targetRevision: f58c7ed8cfe28ad70701c5923fdbd0154388ea9f
 sourcePath: helm-guestbook
 chartName: ""
 helmValues:
-  replicaCount: 2
+  replicaCount: 1

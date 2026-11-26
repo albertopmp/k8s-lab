@@ -6,51 +6,12 @@ app:
   packages: all
 
   extensions:
-    # Default landing page configuration.
-    # The catalog is mounted at /catalog by default but is overridden here to
-    # serve as the root page. To switch to the Home page, comment out the
-    # catalog path override and uncomment the path override under page:home below.
-    - page:catalog:
-        config:
-          path: /
-
-    # Visit tracking records which pages users navigate to and is disabled by default.
-    # Enable it to populate the Most Visited and Recently Visited widgets on the Home page.
-    # Visit data is stored via UserSettings storage if available, otherwise browser localStorage.
-    # - api:home/visits: true
-    # - app-root-element:home/visit-listener: true
-    - home-page-widget:home/toolkit:
-        config:
-          tools:
-            - url: https://backstage.io/docs
-              label: Docs
-              icon: docs
-            - url: https://github.com/backstage/backstage
-              label: GitHub
-              icon: github
-            - url: https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md
-              label: Contributing
-              icon: docs
-            - url: https://backstage.io/plugins
-              label: Plugins Directory
-              icon: kind:component
-            - url: https://github.com/backstage/backstage/issues/new/choose
-              label: Submit New Issue
-              icon: github
-    - home-page-widget:home/world-clock:
-        config:
-          clockConfigs:
-            - label: NYC
-              timeZone: America/New_York
-            - label: UTC
-              timeZone: UTC
-            - label: STO
-              timeZone: Europe/Stockholm
-            - label: TYO
-              timeZone: Asia/Tokyo
+    # Landing page: Home at /, the catalog at its default /catalog.
     - page:home:
         config:
-          # path: /
+          path: /
+          # 12-column grid. Row 1: search. Row 2: quick actions, starred,
+          # notifications. Row 3: lab links and visit history.
           defaultConfig:
             - component: HomePageSearchBar
               column: 0
@@ -58,41 +19,71 @@ app:
               width: 12
               height: 2
               deletable: false
-            - component: GettingStarted
+            - component: HomePageFeaturedTemplates
               column: 0
-              row: 1
+              row: 2
               width: 4
-              height: 11
+              height: 6
             - component: HomePageStarredEntities
               column: 4
               row: 2
               width: 4
-              height: 4
-            - component: HomePageRandomJoke
+              height: 6
+            - component: UnreadNotifications
               column: 8
               row: 2
               width: 4
-              height: 4
+              height: 6
             - component: HomePageToolkit
-              column: 4
-              row: 6
+              column: 0
+              row: 8
               width: 4
-              height: 3
-            - component: HomePageWorldClock
-              column: 8
-              row: 6
-              width: 4
-              height: 3
-            - component: HomePageMostVisited
-              column: 4
-              row: 9
-              width: 4
-              height: 4
+              height: 5
             - component: HomePageRecentlyVisited
-              column: 8
-              row: 9
+              column: 4
+              row: 8
               width: 4
-              height: 4
+              height: 5
+            - component: HomePageMostVisited
+              column: 8
+              row: 8
+              width: 4
+              height: 5
+
+    # Quick actions: templates tagged `kargo` (the Kargo promotion template).
+    - home-page-widget:scaffolder/featured-templates:
+        config:
+          title: Quick actions
+          tag: kargo
+
+    # Lab links.
+    - home-page-widget:home/toolkit:
+        config:
+          tools:
+            - url: http://localhost:8080
+              label: Argo CD
+              icon: dashboard
+            - url: http://localhost:8081
+              label: Kargo
+              icon: dashboard
+            - url: https://github.com/albertopmp/k8s-lab
+              label: k8s-lab repo
+              icon: github
+            - url: https://backstage.io/docs
+              label: Backstage docs
+              icon: docs
+            - url: https://docs.kargo.io
+              label: Kargo docs
+              icon: docs
+
+    # Visit tracking feeds Recently Visited and Most Visited (stored per user
+    # through user settings, or browser localStorage).
+    - api:home/visits: true
+    - app-root-element:home/visit-listener: true
+
+    # Not used on this Home.
+    - home-page-widget:home/random-joke: false
+    - home-page-widget:home/world-clock: false
 
     - page:catalog/entity:
         config:
@@ -250,6 +241,10 @@ auth:
     # See https://backstage.io/docs/auth/guest/provider
     guest:
       dangerouslyAllowOutsideDevelopment: true
+      # Sign in as the catalog user in examples/org.yaml (member of `guests`,
+      # which owns the lab apps), so ownership and notifications reach you.
+      # The default, user:development/guest, exists in no catalog file.
+      userEntityRef: user:default/guest
     # GitHub Actions uses this provider to get a user-scoped GitHub token.
     # Create a GitHub OAuth App with callback
     # http://localhost:7007/api/auth/github/handler/frame, then set these values
@@ -281,6 +276,13 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location]
   locations:
+    # Users and groups (baked into the image): `guests` owns every lab app and
+    # receives its notifications; `guest` is who the guest sign-in becomes.
+    - type: file
+      target: ./examples/org.yaml
+      rules:
+        - allow: [User, Group]
+
     # Lab apps, read from GitHub: every argocd/apps/<app>/catalog-info.yaml
     # (glob), so a new app folder is registered without listing it anywhere.
     - type: url

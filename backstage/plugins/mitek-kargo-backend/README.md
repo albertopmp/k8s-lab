@@ -14,7 +14,8 @@ Routes:
 
 Action (`mitek:kargo:promote`): inputs `entityRef`, `freight`, `stage`;
 output `promotionUrl`. Reads the Kargo Project from the component, promotes,
-logs each phase and waits up to 10 minutes. It doesn't repeat checks the form
+logs each phase and waits up to 10 minutes. The component's owner gets a
+Backstage notification (topic `kargo`) when it succeeds or fails. It doesn't repeat checks the form
 already does: Kargo rejects invalid promotions and its message fails the step.
 
 Files: `MitekKargoClient.ts` (Kargo REST API), `MitekKargoError.ts`,

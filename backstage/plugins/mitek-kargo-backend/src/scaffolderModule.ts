@@ -1,5 +1,6 @@
 import { coreServices, createBackendModule } from '@backstage/backend-plugin-api';
 import { catalogServiceRef } from '@backstage/plugin-catalog-node';
+import { notificationService } from '@backstage/plugin-notifications-node';
 import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node';
 import { MitekKargoClient } from './MitekKargoClient';
 import { createPromoteAction } from './promoteAction';
@@ -13,10 +14,13 @@ export const mitekKargoScaffolderModule = createBackendModule({
       deps: {
         config: coreServices.rootConfig,
         catalog: catalogServiceRef,
+        notifications: notificationService,
         actions: scaffolderActionsExtensionPoint,
       },
-      async init({ config, catalog, actions }) {
-        actions.addActions(createPromoteAction(MitekKargoClient.fromConfig(config), catalog));
+      async init({ config, catalog, notifications, actions }) {
+        actions.addActions(
+          createPromoteAction(MitekKargoClient.fromConfig(config), catalog, notifications),
+        );
       },
     });
   },

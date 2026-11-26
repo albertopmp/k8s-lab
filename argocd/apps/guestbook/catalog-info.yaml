@@ -37,3 +37,16 @@ spec:
   type: secret
   # Team responsible for rotating it.
   owner: guests
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: guestbook-token
+  description: Token for guestbook, stored in AWS Secrets Manager.
+  annotations:
+    # Name of the secret in AWS Secrets Manager; {env} is dev, stg or prd.
+    k8s-lab/aws-secret-name: k8s-lab/{env}/guestbook/token
+spec:
+  type: secret
+  # Team responsible for rotating it.
+  owner: guests

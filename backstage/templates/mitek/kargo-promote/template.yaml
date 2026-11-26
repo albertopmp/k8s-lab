@@ -18,6 +18,7 @@ spec:
         - component
         - freight
         - stage
+        - secrets
       properties:
         component:
           title: Component
@@ -45,6 +46,17 @@ spec:
           ui:options:
             entityField: component
             freightField: freight
+        # One password input per secret the component depends on (Resources
+        # of type secret), each showing its AWS name for the Stage. Values go
+        # to `secrets.<resource name>`, not the form; no step writes them yet.
+        secrets:
+          title: Secrets
+          type: object
+          description: Values of the secrets the component depends on.
+          ui:field: MitekSecretsInput
+          ui:options:
+            entityField: component
+            stageField: stage
 
   steps:
     - id: promote

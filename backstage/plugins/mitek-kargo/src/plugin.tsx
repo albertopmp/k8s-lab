@@ -7,7 +7,7 @@ import { FormFieldBlueprint } from '@backstage/plugin-scaffolder-react/alpha';
  *
  * - entity-card:mitek-kargo/promote: "Promote with Kargo" button on the entity
  *   Overview (placement and filter set in app-config.yaml)
- * - MitekFreightPicker and MitekStagePicker scaffolder fields
+ * - MitekFreightPicker, MitekStagePicker and MitekSecretsInput scaffolder fields
  */
 export const mitekKargoPlugin = createFrontendPlugin({
   pluginId: 'mitek-kargo',
@@ -29,6 +29,12 @@ export const mitekKargoPlugin = createFrontendPlugin({
       name: 'mitek-stage-picker',
       params: {
         field: () => import('./fields/MitekStagePicker').then(m => m.mitekStagePickerField),
+      },
+    }),
+    FormFieldBlueprint.make({
+      name: 'mitek-secrets-input',
+      params: {
+        field: () => import('./fields/MitekSecretsInput').then(m => m.mitekSecretsInputField),
       },
     }),
   ],

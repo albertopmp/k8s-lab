@@ -78,6 +78,6 @@ export function KargoSelect(props: {
 }
 
 /** Value of another field in the form (all steps). */
-export function formValue(field: FieldExtensionComponentProps<string, any>, name: string) {
+export function formValue(field: FieldExtensionComponentProps<any, any>, name: string) {
   return field.formContext?.formData?.[name] as string | undefined;
 }

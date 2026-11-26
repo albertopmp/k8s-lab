@@ -22,33 +22,30 @@ app:
             - component: HomePageFeaturedTemplates
               column: 0
               row: 2
+              width: 5
+              height: 6
+            - component: UnreadNotifications
+              column: 5
+              row: 2
+              width: 5
+              height: 6
+              deletable: false
+            - component: HomePageRecentlyVisited
+              column: 0
+              row: 8
               width: 4
               height: 6
             - component: HomePageStarredEntities
               column: 4
-              row: 2
-              width: 4
-              height: 6
-            - component: UnreadNotifications
-              column: 8
-              row: 2
-              width: 4
+              row: 8
+              width: 3
               height: 6
             - component: HomePageToolkit
-              column: 0
+              column: 7
               row: 8
-              width: 4
-              height: 5
-            - component: HomePageRecentlyVisited
-              column: 4
-              row: 8
-              width: 4
-              height: 5
-            - component: HomePageMostVisited
-              column: 8
-              row: 8
-              width: 4
-              height: 5
+              width: 3
+              height: 6
+              deletable: false
 
     # Quick actions: templates tagged `kargo` (the Kargo promotion template).
     - home-page-widget:scaffolder/featured-templates:

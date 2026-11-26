@@ -1,0 +1,9 @@
+# The lab as a Backstage System: every app in argocd/apps/ (and its resources)
+# is part of it via `spec.system: k8s-lab`. The catalog graph page starts here.
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: k8s-lab
+  description: Apps deployed by Argo CD in the local Kubernetes lab.
+spec:
+  owner: guests

@@ -17,6 +17,7 @@ spec:
   type: service
   lifecycle: experimental
   owner: guests
+  system: k8s-lab
   # Infrastructure guestbook needs at runtime (shown in the catalog graph).
   dependsOn:
     - resource:guestbook-db-credentials
@@ -38,6 +39,7 @@ spec:
   type: secret
   # Team responsible for rotating it.
   owner: guests
+  system: k8s-lab
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource
@@ -51,3 +53,4 @@ spec:
   type: secret
   # Team responsible for rotating it.
   owner: guests
+  system: k8s-lab

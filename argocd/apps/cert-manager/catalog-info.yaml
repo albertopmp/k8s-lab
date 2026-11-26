@@ -17,3 +17,4 @@ spec:
   type: service
   lifecycle: experimental
   owner: guests
+  system: k8s-lab

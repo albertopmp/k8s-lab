@@ -82,6 +82,13 @@ app:
     - home-page-widget:home/random-joke: false
     - home-page-widget:home/world-clock: false
 
+    # Standalone graph (/catalog-graph) starts from the lab System, so it shows
+    # all lab apps and their resources instead of an empty canvas.
+    - page:catalog-graph:
+        config:
+          rootEntityRefs:
+            - system:default/k8s-lab
+
     - page:catalog/entity:
         config:
           groups:
@@ -280,10 +287,11 @@ catalog:
       rules:
         - allow: [User, Group]
 
-    # Lab apps, read from GitHub: every argocd/apps/<app>/catalog-info.yaml
-    # (glob), so a new app folder is registered without listing it anywhere.
+    # Lab apps, read from GitHub: argocd/catalog-info.yaml (the k8s-lab
+    # System) and every argocd/apps/<app>/catalog-info.yaml (glob), so a new
+    # app folder is registered without listing it anywhere.
     - type: url
-      target: https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/*/catalog-info.yaml
+      target: https://github.com/albertopmp/k8s-lab/blob/master/argocd/**/catalog-info.yaml
 
     # Mitek custom templates, read from GitHub (not baked into the image).
     # New or edited templates appear after a push and the next catalog

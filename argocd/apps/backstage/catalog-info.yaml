@@ -17,3 +17,4 @@ spec:
   type: website
   lifecycle: experimental
   owner: guests
+  system: k8s-lab

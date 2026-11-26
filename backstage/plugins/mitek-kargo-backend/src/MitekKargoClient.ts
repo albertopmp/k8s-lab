@@ -37,7 +37,10 @@ export class MitekKargoClient {
   /** Reads `mitek.kargo.{baseUrl,token,uiUrl}`; undefined if not configured. */
   static fromConfig(config: Config): MitekKargoClient | undefined {
     const baseUrl = config.getOptionalString('mitek.kargo.baseUrl');
-    const token = config.getOptionalString('mitek.kargo.token');
+    // getOptional, not getOptionalString: on a fresh cluster KARGO_API_TOKEN is
+    // empty until Kargo exists, and getOptionalString throws on empty strings,
+    // which would stop the whole backend instead of just disabling Kargo.
+    const token = config.getOptional<string>('mitek.kargo.token');
     if (!baseUrl || !token) return undefined;
     const uiUrl = config.getOptionalString('mitek.kargo.uiUrl') ?? baseUrl;
     return new MitekKargoClient(baseUrl, token, uiUrl);

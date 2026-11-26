@@ -17,3 +17,23 @@ spec:
   type: service
   lifecycle: experimental
   owner: guests
+  # Infrastructure guestbook needs at runtime (shown in the catalog graph).
+  dependsOn:
+    - resource:guestbook-db-credentials
+---
+# An AWS Secrets Manager secret guestbook reads. Only the AWS secret is
+# modeled: its keys, and the Kubernetes Secrets External Secrets Operator
+# creates from them, are defined by ExternalSecret manifests in Git. No
+# secret values (or key names) belong in the catalog.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: guestbook-db-credentials
+  description: Database credentials for guestbook, stored in AWS Secrets Manager.
+  annotations:
+    # Name of the secret in AWS Secrets Manager; {env} is dev, stg or prd.
+    k8s-lab/aws-secret-name: k8s-lab/{env}/guestbook/db-credentials
+spec:
+  type: secret
+  # Team responsible for rotating it.
+  owner: guests

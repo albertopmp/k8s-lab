@@ -281,28 +281,10 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location]
   locations:
-    # Example data included in the custom container image.
-    - type: file
-      target: ./examples/entities.yaml
-
-    # Local example template
-    - type: file
-      target: ./examples/template/template.yaml
-      rules:
-        - allow: [Template]
-
-    # Local example organizational data
-    - type: file
-      target: ./examples/org.yaml
-      rules:
-        - allow: [User, Group]
-
     # Lab apps, read from GitHub: every argocd/apps/<app>/catalog-info.yaml
     # (glob), so a new app folder is registered without listing it anywhere.
     - type: url
       target: https://github.com/albertopmp/k8s-lab/blob/master/argocd/apps/*/catalog-info.yaml
-      rules:
-        - allow: [Component]
 
     # Mitek custom templates, read from GitHub (not baked into the image).
     # New or edited templates appear after a push and the next catalog
@@ -311,16 +293,6 @@ catalog:
       target: https://github.com/albertopmp/k8s-lab/blob/master/backstage/templates/mitek/locations.yaml
       rules:
         - allow: [Location, Template]
-
-    ## Uncomment these lines to add more example data
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
-
-    ## Uncomment these lines to add an example org
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
-    #   rules:
-    #     - allow: [User, Group]
 
 kubernetes:
   # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options

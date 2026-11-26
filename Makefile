@@ -5,7 +5,7 @@ PROFILE ?= k8s-lab
 BACKSTAGE_TAG ?= 0.1.6
 K8S_VERSION ?= v1.34.0
 CPUS ?= 4
-MEMORY ?= 4096
+MEMORY ?= 6144
 KUBECTL = minikube kubectl -p "$(PROFILE)" --
 # Long-running commands (port-forward) use kubectl directly when installed:
 # `minikube kubectl` holds a minikube lock for as long as it runs, which makes

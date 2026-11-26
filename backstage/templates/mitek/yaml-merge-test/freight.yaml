@@ -5,4 +5,4 @@
 # Freight per Stage, set from the form.
 freight:
   example: none
-  dev: 533784985e0c841de32d4cef37e51e79559e4361 # inline comment, should survive too
+  dev: aa7aa69da59dfcb86c30d8d059a2c49ddf8c7295 # inline comment, should survive too

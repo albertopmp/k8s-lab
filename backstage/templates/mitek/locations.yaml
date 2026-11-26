@@ -9,3 +9,4 @@ metadata:
 spec:
   targets:
     - ./kargo-promote/template.yaml
+    - ./yaml-merge-test/template.yaml

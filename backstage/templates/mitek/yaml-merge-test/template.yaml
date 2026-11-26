@@ -1,0 +1,82 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# Mitek custom test template: adds `<stage>: <freight>` to the `freight` map in
+# backstage/templates/mitek/yaml-merge-test/freight.yaml with
+# roadiehq:utils:merge (comments kept) and opens a PR. Nothing is promoted.
+kind: Template
+metadata:
+  name: mitek-yaml-merge-test
+  title: YAML merge test
+  description: Test roadiehq:utils:merge by adding a stage-to-freight entry to a YAML map in a pull request.
+  tags:
+    - mitek
+    - test
+spec:
+  owner: user:guest
+  type: test
+
+  parameters:
+    - title: Entry
+      required:
+        - component
+        - freight
+        - stage
+      properties:
+        component:
+          title: Component
+          type: string
+          description: Catalog Component managed by Kargo.
+          ui:field: EntityPicker
+          ui:autofocus: true
+          ui:options:
+            catalogFilter:
+              kind: Component
+              metadata.annotations.kargo/project:
+                exists: true
+        freight:
+          title: Freight
+          type: string
+          ui:field: MitekFreightPicker
+          ui:options:
+            entityField: component
+        stage:
+          title: Stage
+          type: string
+          ui:field: MitekStagePicker
+          ui:options:
+            entityField: component
+            freightField: freight
+
+  steps:
+    - id: fetch
+      name: Fetch the YAML file
+      action: fetch:plain:file
+      input:
+        url: https://github.com/albertopmp/k8s-lab/blob/master/backstage/templates/mitek/yaml-merge-test/freight.yaml
+        targetPath: freight.yaml
+
+    - id: merge
+      name: Add the entry
+      action: roadiehq:utils:merge
+      input:
+        path: freight.yaml
+        preserveYamlComments: true
+        # A string, not a mapping: Backstage only templates values, never
+        # keys, and the action parses this string as YAML.
+        content: |
+          freight:
+            ${{ parameters.stage }}: ${{ parameters.freight }}
+
+    - id: pr
+      name: Open a pull request
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?owner=albertopmp&repo=k8s-lab
+        branchName: yaml-merge-test-${{ parameters.stage }}
+        title: 'YAML merge test: ${{ parameters.stage }} = ${{ parameters.freight }}'
+        description: Created by the mitek-yaml-merge-test template to test roadiehq:utils:merge.
+        targetPath: backstage/templates/mitek/yaml-merge-test
+
+  output:
+    links:
+      - title: Open the pull request
+        url: ${{ steps.pr.output.remoteUrl }}

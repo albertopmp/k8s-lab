@@ -1,0 +1,7 @@
+# Test file for the mitek-yaml-merge-test template: it adds or updates one
+# `<stage>: <freight>` entry below with roadiehq:utils:merge and opens a PR.
+# If this comment survives the PR, preserveYamlComments works.
+
+# Freight per Stage, set from the form.
+freight:
+  example: none # inline comment, should survive too

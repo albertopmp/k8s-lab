@@ -26,6 +26,8 @@ backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));
 backend.add(
   import('@backstage/plugin-scaffolder-backend-module-notifications'),
 );
+// roadiehq:utils:* actions (merge, fs:write, jsonata, ...)
+backend.add(import('@roadiehq/scaffolder-backend-module-utils'));
 
 // techdocs plugin
 backend.add(import('@backstage/plugin-techdocs-backend'));
